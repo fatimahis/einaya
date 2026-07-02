@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Cairo', sans-serif; direction: rtl; font-size: 135%; }
+    a { text-decoration: none; color: inherit; }
+    input, textarea, select, button { font-family: 'Cairo', sans-serif; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: #5A6F9E; border-radius: 4px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: right; }
+    @media (max-width: 768px) {
+      .dash-sidebar { position: fixed !important; right: 0; top: 0; bottom: 0; z-index: 200; transform: translateX(100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1); box-shadow: -4px 0 24px rgba(0,0,0,0.18); }
+      .dash-sidebar.open { transform: translateX(0) !important; }
+      .dash-overlay { display: block !important; }
+      .dash-hamburger { display: flex !important; }
+      .dash-kpi-grid { grid-template-columns: 1fr 1fr !important; }
+      .dash-header-title h1 { font-size: 14px !important; }
+      main { padding: 14px !important; }
+      .dash-table-wrap { overflow-x: auto; }
+    }
+    @media (max-width: 420px) {
+      .dash-kpi-grid { grid-template-columns: 1fr !important; }
+    }
+  </style>
+  <template id="__bundler_thumbnail" data-bg-color="#4E5F80">
+    <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1200" height="800" fill="#4E5F80"/>
+      <rect x="0" y="0" width="240" height="800" fill="#3A4D6E"/>
+      <rect x="240" y="0" width="960" height="76" fill="#fff"/>
+      <rect x="260" y="100" width="210" height="120" rx="12" fill="#fff" opacity="0.9"/>
+      <rect x="490" y="100" width="210" height="120" rx="12" fill="#fff" opacity="0.9"/>
+      <rect x="720" y="100" width="210" height="120" rx="12" fill="#fff" opacity="0.9"/>
+      <rect x="950" y="100" width="210" height="120" rx="12" fill="#fff" opacity="0.9"/>
+      <circle cx="120" cy="100" r="36" fill="#C4A882" opacity="0.8"/>
+    </svg>
+  </template>
+</helmet>
+
+<div style="display:flex;height:100vh;overflow:hidden;direction:rtl;border-top:4px solid #4E5F80">
+
+  <!-- MOBILE OVERLAY -->
+  <div class="dash-overlay" onclick="{{ closeSidebar }}" style="display:none;position:fixed;inset:0;z-index:199;background:rgba(0,0,0,0.45)"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="{{ sidebarClass }}" style="width:248px;background:#4E5F80;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;overflow-x:hidden">
+    <div style="border-bottom:1px solid #D8DBE2;background:#fff">
+      <div style="display:flex;align-items:center;justify-content:center;padding:14px 14px 10px">
+        <img src="./logo.png" alt="عناية بالمصاحف بالأحساء" style="height:52px;object-fit:contain">
+      </div>
+      <div style="background:#4E5F80;padding:5px 14px;font-size:11px;color:rgba(255,255,255,0.85);font-weight:700;letter-spacing:0.5px;text-align:center">لوحة الإدارة</div>
+    </div>
+    <nav style="padding:10px 8px;flex:1">
+      <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="11">
+        <button onclick="{{ item.onClick }}" style="{{ item.navStyle }}">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">
+            <path d="{{ item.iconPath }}"></path>
+          </svg>
+          <span style="font-size:13px;font-weight:600;white-space:nowrap">{{ item.label }}</span>
+        </button>
+      </sc-for>
+    </nav>
+    <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,0.07)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:34px;height:34px;background:linear-gradient(135deg,#C4A882,#D4BB96);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#4E5F80;flex-shrink:0">ف</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#FFFFFF;line-height:1.3">فاطمة الصالح</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.4)">مدير تقنية المعلومات</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;background:#F7F8FA">
+
+    <!-- HEADER -->
+    <header style="background:#FFFFFF;display:flex;flex-direction:column;flex-shrink:0;border-bottom:1px solid #D8DBE2">
+      <div style="flex:1;display:flex;align-items:center;justify-content:space-between;padding:0 16px;min-height:76px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="dash-hamburger" onclick="{{ toggleSidebar }}" style="display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:6px;border-radius:8px">
+            <span style="width:20px;height:2px;background:#4E5F80;border-radius:1px;display:block"></span>
+            <span style="width:20px;height:2px;background:#4E5F80;border-radius:1px;display:block"></span>
+            <span style="width:20px;height:2px;background:#4E5F80;border-radius:1px;display:block"></span>
+          </button>
+          <div class="dash-header-title">
+            <h1 style="font-size:22px;font-weight:900;color:#111C32">{{ activeTitle }}</h1>
+            <div style="font-size:11px;color:#6B7E9F;margin-top:1px">{{ activeSub }}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="display:flex;align-items:center;gap:8px;background:#F0F3F9;border:1px solid #D8DBE2;border-radius:10px;padding:8px 13px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B7E9F" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" placeholder="بحث..." style="border:none;background:transparent;outline:none;font-size:13px;color:#111C32;width:140px">
+          </div>
+          <div style="width:36px;height:36px;background:#F0F3F9;border:1px solid #D8DBE2;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4E5F80" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <div style="position:absolute;top:6px;right:7px;width:7px;height:7px;background:#C4A882;border-radius:50%;border:1.5px solid #fff"></div>
+          </div>
+          <div style="font-size:12px;color:#6B7E9F;font-weight:600;background:#F0F3F9;border:1px solid #D8DBE2;border-radius:10px;padding:8px 13px;white-space:nowrap">٢ يوليو ٢٠٢٦</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- PAGES -->
+    <main style="flex:1;overflow-y:auto;padding:24px 28px">
+
+      <!-- ═══ DASHBOARD ═══ -->
+      <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:22px">
+          <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+            <div style="background:#fff;border-radius:16px;padding:22px;box-shadow:0 2px 12px rgba(28,94,56,0.06);border:1px solid #D8DBE2">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
+                <div style="width:42px;height:42px;background:{{ k.iconBg }};border-radius:12px;display:flex;align-items:center;justify-content:center">
+                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="{{ k.iconStroke }}" stroke-width="2" stroke-linecap="round"><path d="{{ k.iconPath }}"></path></svg>
+                </div>
+                <span style="{{ k.changeStyle }}">{{ k.change }}</span>
+              </div>
+              <div style="font-size:30px;font-weight:900;color:#111C32;line-height:1;margin-bottom:5px">{{ k.value }}</div>
+              <div style="font-size:13px;color:#6B7E9F;font-weight:600">{{ k.label }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 300px;gap:18px;margin-bottom:22px">
+          <div style="background:#fff;border-radius:16px;padding:22px;box-shadow:0 2px 12px rgba(28,94,56,0.06);border:1px solid #D8DBE2">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+              <div>
+                <h3 style="font-size:15px;font-weight:800;color:#111C32">الاستلام والتوزيع الشهري</h3>
+                <p style="font-size:11px;color:#6B7E9F;margin-top:2px">آخر 6 أشهر</p>
+              </div>
+              <div style="display:flex;gap:14px">
+                <div style="display:flex;align-items:center;gap:5px"><div style="width:9px;height:9px;background:#4E5F80;border-radius:2px"></div><span style="font-size:11px;color:#6B7E9F">مرمم</span></div>
+                <div style="display:flex;align-items:center;gap:5px"><div style="width:9px;height:9px;background:#C4A882;border-radius:2px"></div><span style="font-size:11px;color:#6B7E9F">موزع</span></div>
+              </div>
+            </div>
+            <svg width="100%" height="180" viewBox="0 0 380 180" preserveAspectRatio="xMidYMid meet">
+              <line x1="36" y1="160" x2="380" y2="160" stroke="#D8DBE2" stroke-width="1"></line>
+              <line x1="36" y1="120" x2="380" y2="120" stroke="#D8DBE2" stroke-width="0.8" stroke-dasharray="3,3"></line>
+              <line x1="36" y1="80" x2="380" y2="80" stroke="#D8DBE2" stroke-width="0.8" stroke-dasharray="3,3"></line>
+              <line x1="36" y1="40" x2="380" y2="40" stroke="#D8DBE2" stroke-width="0.8" stroke-dasharray="3,3"></line>
+              <text x="0" y="164" font-family="Cairo,sans-serif" font-size="8" fill="#9FAFC8">0</text>
+              <text x="0" y="124" font-family="Cairo,sans-serif" font-size="8" fill="#9FAFC8">600</text>
+              <text x="0" y="84" font-family="Cairo,sans-serif" font-size="8" fill="#9FAFC8">1.2k</text>
+              <text x="0" y="44" font-family="Cairo,sans-serif" font-size="8" fill="#9FAFC8">2.5k</text>
+              <sc-for list="{{ chartBars }}" as="bar" hint-placeholder-count="6">
+                <rect x="{{ bar.bx }}" y="{{ bar.by }}" width="17" height="{{ bar.bh }}" rx="3" fill="#4E5F80" opacity="0.9"></rect>
+                <rect x="{{ bar.gx }}" y="{{ bar.gy }}" width="17" height="{{ bar.gh }}" rx="3" fill="#C4A882" opacity="0.85"></rect>
+                <text x="{{ bar.lx }}" y="175" font-family="Cairo,sans-serif" font-size="9" fill="#6B7E9F" text-anchor="middle">{{ bar.month }}</text>
+              </sc-for>
+            </svg>
+          </div>
+          <div style="background:#fff;border-radius:16px;padding:22px;box-shadow:0 2px 12px rgba(28,94,56,0.06);border:1px solid #D8DBE2">
+            <h3 style="font-size:15px;font-weight:800;color:#111C32;margin-bottom:3px">توزيع أنواع المصاحف</h3>
+            <p style="font-size:11px;color:#6B7E9F;margin-bottom:16px">إجمالي مرمم: 50,842</p>
+            <svg width="100%" height="150" viewBox="0 0 150 150">
+              <circle cx="75" cy="75" r="48" fill="none" stroke="#D8DBE2" stroke-width="18"></circle>
+              <circle cx="75" cy="75" r="48" fill="none" stroke="#C4A882" stroke-width="18" stroke-dasharray="146 302" stroke-dashoffset="0" style="transform:rotate(-90deg);transform-origin:75px 75px"></circle>
+              <circle cx="75" cy="75" r="48" fill="none" stroke="#1A6DBF" stroke-width="18" stroke-dasharray="100 302" stroke-dashoffset="-146" style="transform:rotate(-90deg);transform-origin:75px 75px"></circle>
+              <circle cx="75" cy="75" r="48" fill="none" stroke="#7B3FA0" stroke-width="18" stroke-dasharray="37 302" stroke-dashoffset="-246" style="transform:rotate(-90deg);transform-origin:75px 75px"></circle>
+              <circle cx="75" cy="75" r="48" fill="none" stroke="#4E5F80" stroke-width="18" stroke-dasharray="18 302" stroke-dashoffset="-283" style="transform:rotate(-90deg);transform-origin:75px 75px"></circle>
+              <text x="75" y="70" text-anchor="middle" font-family="Cairo,sans-serif" font-size="16" font-weight="900" fill="#111C32">50,842</text>
+              <text x="75" y="83" text-anchor="middle" font-family="Cairo,sans-serif" font-size="9" fill="#6B7E9F">مصحف مرمم</text>
+            </svg>
+            <div style="display:flex;flex-direction:column;gap:7px;margin-top:4px">
+              <div style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:center;gap:7px"><div style="width:8px;height:8px;background:#C4A882;border-radius:2px"></div><span style="font-size:11px;color:#6B7E9F">عادي وسط</span></div><span style="font-size:12px;font-weight:700;color:#111C32">24,610</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:center;gap:7px"><div style="width:8px;height:8px;background:#1A6DBF;border-radius:2px"></div><span style="font-size:11px;color:#6B7E9F">مجزأ</span></div><span style="font-size:12px;font-weight:700;color:#111C32">16,820</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:center;gap:7px"><div style="width:8px;height:8px;background:#7B3FA0;border-radius:2px"></div><span style="font-size:11px;color:#6B7E9F">جيب صغير</span></div><span style="font-size:12px;font-weight:700;color:#111C32">6,200</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:center;gap:7px"><div style="width:8px;height:8px;background:#4E5F80;border-radius:2px"></div><span style="font-size:11px;color:#6B7E9F">جوامعي كبير</span></div><span style="font-size:12px;font-weight:700;color:#111C32">3,212</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px">
+          <sc-for list="{{ mushafsBreakdown }}" as="t" hint-placeholder-count="5">
+            <div style="background:#fff;border-radius:14px;padding:18px 14px;border:1px solid #D8DBE2;box-shadow:0 2px 8px rgba(28,94,56,0.04)">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                <div style="width:10px;height:10px;background:{{ t.color }};border-radius:50%;flex-shrink:0"></div>
+                <span style="font-size:11px;font-weight:700;color:#6B7E9F;line-height:1.3">{{ t.label }}</span>
+              </div>
+              <div style="font-size:22px;font-weight:900;color:#111C32;line-height:1;margin-bottom:4px">{{ t.count }}</div>
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <span style="font-size:11px;color:#9FAFC8">{{ t.sub }}</span>
+                <span style="font-size:12px;font-weight:700;color:{{ t.color }}">{{ t.pct }}%</span>
+              </div>
+              <div style="margin-top:10px;height:4px;background:#EEEEF1;border-radius:2px;overflow:hidden">
+                <div style="height:100%;background:{{ t.color }};border-radius:2px;width:{{ t.pct }}%;opacity:0.8"></div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="background:#fff;border-radius:16px;padding:22px;box-shadow:0 2px 12px rgba(28,94,56,0.06);border:1px solid #D8DBE2">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+            <h3 style="font-size:15px;font-weight:800;color:#111C32">آخر الطلبات والتبرعات</h3>
+          </div>
+          <table>
+            <thead><tr style="border-bottom:2px solid #D8DBE2">
+              <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">رقم المرجع</th>
+              <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">المتبرع</th>
+              <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">الباقة</th>
+              <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">المبلغ</th>
+              <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">الحالة</th>
+              <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">التاريخ</th>
+            </tr></thead>
+            <tbody>
+              <sc-for list="{{ recentOrders }}" as="o" hint-placeholder-count="3">
+                <tr style="border-bottom:1px solid #EEEEF1" style-hover="background:#F5F6F8">
+                  <td style="padding:11px 12px;font-size:12px;font-weight:700;color:#4E5F80;direction:ltr;font-family:monospace">{{ o.ref }}</td>
+                  <td style="padding:11px 12px;font-size:13px;color:#111C32;font-weight:600">{{ o.donor }}</td>
+                  <td style="padding:11px 12px;font-size:12px;color:#6B7E9F">{{ o.pkg }}</td>
+                  <td style="padding:11px 12px;font-size:13px;font-weight:700;color:#111C32;direction:ltr">{{ o.amount }}</td>
+                  <td style="padding:11px 12px"><span style="{{ o.statusStyle }}">{{ o.statusLabel }}</span></td>
+                  <td style="padding:11px 12px;font-size:11px;color:#6B7E9F">{{ o.date }}</td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+      </sc-if>
+
+      <!-- ═══ RECEIVE MODAL ═══ -->
+      <sc-if value="{{ showReceiveModal }}" hint-placeholder-val="{{ false }}">
+        <div style="position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:rgba(10,34,24,0.55);backdrop-filter:blur(4px)" onclick="{{ closeReceiveModal }}">
+          <div style="background:#fff;border-radius:22px;padding:36px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.18)" onclick="{{ stopPropagation }}">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px">
+              <div><h2 style="font-size:18px;font-weight:900;color:#111C32">تسجيل استلام جديد</h2><p style="font-size:12px;color:#6B7E9F;margin-top:3px">أدخل بيانات المصاحف المستلمة</p></div>
+              <button onclick="{{ closeReceiveModal }}" style="width:36px;height:36px;background:#F0F3F9;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7E9F" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            </div>
+            <form style="display:flex;flex-direction:column;gap:18px" onsubmit="{{ submitReceive }}">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">تاريخ الاستلام <span style="color:#E05C5C">*</span></label><input type="date" id="rcv_date" required style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none;direction:ltr" style-focus="border-color:#4E5F80"></div>
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">اسم المستلم <span style="color:#E05C5C">*</span></label><input type="text" id="rcv_receiver" placeholder="اسم الموظف المستلم" required style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none" style-focus="border-color:#4E5F80"></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">اسم المتبرع <span style="color:#E05C5C">*</span></label><input type="text" id="rcv_donor" placeholder="اسم المتبرع أو الجهة" required style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none" style-focus="border-color:#4E5F80"></div>
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">مصدر الاستلام</label><select id="rcv_source" style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none;cursor:pointer"><option>مسجد</option><option>مؤسسة تعليمية</option><option>فرد متبرع</option><option>جهة خيرية</option><option>أخرى</option></select></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">عدد المصاحف <span style="color:#E05C5C">*</span></label><input type="number" id="rcv_count" min="1" placeholder="0" required style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none;direction:ltr" style-focus="border-color:#4E5F80"></div>
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">حجم المصحف</label><select id="rcv_size" style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none;cursor:pointer"><option>جوامعي (كبير)</option><option>عادي (وسط)</option><option>مجزأ</option><option>جيب (صغير)</option></select></div>
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">نوع المصحف</label><select id="rcv_type" style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none;cursor:pointer"><option>مصحف حافظ</option><option>مصحف تجويد</option><option>مصحف كريم</option><option>مصحف عادي</option></select></div>
+              </div>
+              <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">ملاحظات</label><textarea id="rcv_notes" rows="3" placeholder="أي ملاحظات إضافية..." style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none;resize:vertical;line-height:1.7" style-focus="border-color:#4E5F80"></textarea></div>
+              <div style="display:flex;gap:12px;margin-top:4px">
+                <button type="submit" style="flex:1;padding:13px;background:linear-gradient(135deg,#4E5F80,#5A6F9E);color:#fff;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer">حفظ الاستلام</button>
+                <button type="button" onclick="{{ closeReceiveModal }}" style="padding:13px 24px;background:#F0F3F9;color:#536080;font-size:15px;font-weight:700;border:none;border-radius:12px;cursor:pointer">إلغاء</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ═══ RECEIVE PAGE ═══ -->
+      <sc-if value="{{ isReceive }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#fff;border-radius:16px;padding:22px;box-shadow:0 2px 12px rgba(28,94,56,0.06);border:1px solid #D8DBE2">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+            <h3 style="font-size:15px;font-weight:800;color:#111C32">سجل الاستلام</h3>
+            <button onclick="{{ openReceiveModal }}" style="display:flex;align-items:center;gap:7px;padding:10px 18px;background:linear-gradient(135deg,#4E5F80,#5A6F9E);color:#fff;font-size:13px;font-weight:700;border:none;border-radius:10px;cursor:pointer">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              تسجيل استلام جديد
+            </button>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr style="border-bottom:2px solid #D8DBE2;background:#F5F6F8">
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">تاريخ الاستلام</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">اسم المستلم</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">اسم المتبرع</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F;text-align:center">عدد المصاحف</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">حجم المصحف</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">نوع المصحف</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">المصدر</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F;text-align:center">إجراءات</th>
+              </tr></thead>
+              <tbody>
+                <sc-for list="{{ receiveItems }}" as="r" hint-placeholder-count="3">
+                  <tr style="border-bottom:1px solid #EEEEF1" style-hover="background:#F5F6F8">
+                    <td style="padding:11px 12px;font-size:12px;color:#6B7E9F;white-space:nowrap">{{ r.date }}</td>
+                    <td style="padding:11px 12px;font-size:13px;font-weight:600;color:#111C32">{{ r.receiver }}</td>
+                    <td style="padding:11px 12px;font-size:13px;color:#111C32">{{ r.donor }}</td>
+                    <td style="padding:11px 12px;font-size:14px;font-weight:800;color:#4E5F80;text-align:center">{{ r.count }}</td>
+                    <td style="padding:11px 12px"><span style="{{ r.sizeStyle }}">{{ r.size }}</span></td>
+                    <td style="padding:11px 12px;font-size:13px;color:#111C32">{{ r.type }}</td>
+                    <td style="padding:11px 12px;font-size:12px;color:#6B7E9F">{{ r.source }}</td>
+                    <td style="padding:11px 12px">
+                      <button onclick="{{ r.onEdit }}" style="width:30px;height:30px;background:#E8EBF5;color:#4E5F80;border:none;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center" style-hover="background:#4E5F80;color:#fff"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                      <button onclick="{{ r.onDelete }}" style="width:30px;height:30px;background:#FFE8E8;color:#C92929;border:none;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;margin-right:4px" style-hover="background:#C92929;color:#fff"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg></button>
+                    </td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ═══ ACHIEVEMENT MODAL ═══ -->
+      <sc-if value="{{ showAchievementModal }}" hint-placeholder-val="{{ false }}">
+        <div style="position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:rgba(10,34,24,0.55);backdrop-filter:blur(4px)" onclick="{{ closeAchievementModal }}">
+          <div style="background:#fff;border-radius:22px;padding:36px;width:600px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.18)" onclick="{{ stopPropagation }}">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:26px">
+              <div><h2 style="font-size:18px;font-weight:900;color:#111C32">تسجيل إنجاز يومي</h2><p style="font-size:12px;color:#6B7E9F;margin-top:3px">أدخل أعداد المصاحف المرممة لكل نوع</p></div>
+              <button onclick="{{ closeAchievementModal }}" style="width:36px;height:36px;background:#F0F3F9;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7E9F" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            </div>
+            <form style="display:flex;flex-direction:column;gap:22px" onsubmit="{{ submitAchievement }}">
+              <div style="background:#F2F3F5;border-radius:14px;padding:18px">
+                <div style="font-size:13px;font-weight:800;color:#4E5F80;margin-bottom:14px">معلومات الإنجاز</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                  <div><label style="display:block;font-size:11px;font-weight:700;color:#536080;margin-bottom:6px">اسم الموظف *</label><input type="text" id="ach_employee" placeholder="اسم الموظف" required style="width:100%;padding:10px 13px;border:1.5px solid #D8DBE2;border-radius:9px;font-size:13px;color:#111C32;background:#fff;outline:none" style-focus="border-color:#4E5F80"></div>
+                  <div><label style="display:block;font-size:11px;font-weight:700;color:#536080;margin-bottom:6px">التاريخ *</label><input type="date" id="ach_from" required style="width:100%;padding:10px 13px;border:1.5px solid #D8DBE2;border-radius:9px;font-size:13px;color:#111C32;background:#fff;outline:none;direction:ltr" style-focus="border-color:#4E5F80"></div>
+                </div>
+              </div>
+              <div style="background:#F2F3F5;border-radius:14px;padding:18px">
+                <div style="font-size:13px;font-weight:800;color:#111C32;margin-bottom:16px">عدد المصاحف المرممة</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px">
+                  <div><label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;margin-bottom:8px"><span style="width:8px;height:8px;background:#4E5F80;border-radius:50%;flex-shrink:0"></span><span style="color:#4E5F80">الجوامعي (كبير)</span></label><input type="number" id="ach_large" min="0" placeholder="0" style="width:100%;padding:12px 13px;border:2px solid #CDD5EC;border-radius:11px;font-size:18px;font-weight:700;color:#4E5F80;background:#fff;outline:none;direction:ltr;text-align:center" style-focus="border-color:#4E5F80"></div>
+                  <div><label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;margin-bottom:8px"><span style="width:8px;height:8px;background:#C4A882;border-radius:50%;flex-shrink:0"></span><span style="color:#C4A882">العادي (وسط)</span></label><input type="number" id="ach_medium" min="0" placeholder="0" style="width:100%;padding:12px 13px;border:2px solid #F0DFA0;border-radius:11px;font-size:18px;font-weight:700;color:#A8906E;background:#fff;outline:none;direction:ltr;text-align:center" style-focus="border-color:#C4A882"></div>
+                  <div><label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;margin-bottom:8px"><span style="width:8px;height:8px;background:#1A6DBF;border-radius:50%;flex-shrink:0"></span><span style="color:#1A6DBF">المجزأ</span></label><input type="number" id="ach_partial" min="0" placeholder="0" style="width:100%;padding:12px 13px;border:2px solid #B8D5F5;border-radius:11px;font-size:18px;font-weight:700;color:#1A6DBF;background:#fff;outline:none;direction:ltr;text-align:center" style-focus="border-color:#1A6DBF"></div>
+                  <div><label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;margin-bottom:8px"><span style="width:8px;height:8px;background:#7B3FA0;border-radius:50%;flex-shrink:0"></span><span style="color:#7B3FA0">الجيب (صغير)</span></label><input type="number" id="ach_jaib" min="0" placeholder="0" style="width:100%;padding:12px 13px;border:2px solid #D8B8F5;border-radius:11px;font-size:18px;font-weight:700;color:#7B3FA0;background:#fff;outline:none;direction:ltr;text-align:center" style-focus="border-color:#7B3FA0"></div>
+                </div>
+              </div>
+              <div style="display:flex;gap:12px;margin-top:4px">
+                <button type="submit" style="flex:1;padding:13px;background:linear-gradient(135deg,#4E5F80,#5A6F9E);color:#fff;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer">حفظ الإنجاز</button>
+                <button type="button" onclick="{{ closeAchievementModal }}" style="padding:13px 24px;background:#F0F3F9;color:#536080;font-size:15px;font-weight:700;border:none;border-radius:12px;cursor:pointer">إلغاء</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ═══ WORKSHOP PAGE ═══ -->
+      <sc-if value="{{ isWorkshop }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#fff;border-radius:16px;padding:22px;box-shadow:0 2px 12px rgba(28,94,56,0.06);border:1px solid #D8DBE2">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:12px">
+            <div><h3 style="font-size:15px;font-weight:800;color:#111C32">سجل ورشة الترميم</h3><p style="font-size:11px;color:#6B7E9F;margin-top:3px">الإدخالات اليدوية المسجّلة في الورشة</p></div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:12px;font-weight:700;background:#E8E9EE;color:#4E5F80;padding:6px 14px;border-radius:100px">{{ achievementCount }} إدخال</span>
+              <button onclick="{{ openAchievementModal }}" style="display:flex;align-items:center;gap:7px;padding:10px 18px;background:linear-gradient(135deg,#4E5F80,#5A6F9E);color:#fff;font-size:13px;font-weight:700;border:none;border-radius:10px;cursor:pointer">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                تسجيل إنجاز
+              </button>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr style="border-bottom:2px solid #D8DBE2;background:#F5F6F8">
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F;white-space:nowrap">التاريخ</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F;white-space:nowrap">الموظف</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#4E5F80;text-align:center;white-space:nowrap">الجوامعي</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#A8906E;text-align:center;white-space:nowrap">العادي</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#1A6DBF;text-align:center;white-space:nowrap">المجزأ</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#7B3FA0;text-align:center;white-space:nowrap">الجيب</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#111C32;text-align:center;white-space:nowrap">المجموع</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F;text-align:center">إجراءات</th>
+              </tr></thead>
+              <tbody>
+                <sc-for list="{{ achievementEntries }}" as="a" hint-placeholder-count="2">
+                  <tr style="border-bottom:1px solid #EEEEF1" style-hover="background:#F5F6F8">
+                    <td style="padding:10px 12px;font-size:12px;color:#111C32;font-weight:600;white-space:nowrap">{{ a.dateLabel }}</td>
+                    <td style="padding:10px 12px;font-size:13px;color:#111C32;font-weight:600">{{ a.employee }}</td>
+                    <td style="padding:10px 12px;font-size:15px;font-weight:800;color:#4E5F80;text-align:center">{{ a.large }}</td>
+                    <td style="padding:10px 12px;font-size:15px;font-weight:800;color:#A8906E;text-align:center">{{ a.medium }}</td>
+                    <td style="padding:10px 12px;font-size:15px;font-weight:800;color:#1A6DBF;text-align:center">{{ a.partial }}</td>
+                    <td style="padding:10px 12px;font-size:15px;font-weight:800;color:#7B3FA0;text-align:center">{{ a.jaib }}</td>
+                    <td style="padding:10px 12px;text-align:center"><span style="{{ a.totalStyle }}">{{ a.total }}</span></td>
+                    <td style="padding:10px 12px">
+                      <button onclick="{{ a.onEdit }}" style="width:30px;height:30px;background:#E8EBF5;color:#4E5F80;border:none;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center" style-hover="background:#4E5F80;color:#fff"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                      <button onclick="{{ a.onDelete }}" style="width:30px;height:30px;background:#FFE8E8;color:#C92929;border:none;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;margin-right:4px" style-hover="background:#C92929;color:#fff"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg></button>
+                    </td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ═══ ORDER MODAL ═══ -->
+      <sc-if value="{{ showOrderModal }}" hint-placeholder-val="{{ false }}">
+        <div style="position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:rgba(10,34,24,0.55);backdrop-filter:blur(4px)" onclick="{{ closeOrderModal }}">
+          <div style="background:#fff;border-radius:22px;padding:36px;width:580px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.18)" onclick="{{ stopPropagation }}">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:26px">
+              <div><h2 style="font-size:18px;font-weight:900;color:#111C32">تسجيل طلب جديد</h2><p style="font-size:12px;color:#6B7E9F;margin-top:3px">أدخل بيانات المتبرع والتبرع</p></div>
+              <button onclick="{{ closeOrderModal }}" style="width:36px;height:36px;background:#F0F3F9;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7E9F" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            </div>
+            <form style="display:flex;flex-direction:column;gap:18px" onsubmit="{{ submitOrder }}">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">اسم المتبرع *</label><input type="text" id="ord_donor" placeholder="الاسم الكامل" required style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none" style-focus="border-color:#4E5F80"></div>
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">رقم الجوال</label><input type="tel" id="ord_phone" placeholder="+966 5X XXX XXXX" style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none;direction:ltr" style-focus="border-color:#4E5F80"></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">الباقة *</label><select id="ord_pkg" required style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none;cursor:pointer"><option value="">اختر الباقة</option><option>محسن — 50 ر.س</option><option>داعم — 200 ر.س</option><option>خيّر — 500 ر.س</option><option>راعي الخير — 1,000 ر.س</option></select></div>
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">المبلغ (ريال) *</label><input type="number" id="ord_amount" min="1" placeholder="0" required style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:14px;font-weight:700;color:#4E5F80;background:#F5F6F8;outline:none;direction:ltr;text-align:center" style-focus="border-color:#4E5F80"></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">طريقة الدفع</label><select id="ord_payment" style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none;cursor:pointer"><option value="">اختر</option><option>مدى</option><option>Apple Pay</option><option>تحويل بنكي</option><option>نقداً</option></select></div>
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">تاريخ الطلب *</label><input type="date" id="ord_date" required style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none;direction:ltr" style-focus="border-color:#4E5F80"></div>
+              </div>
+              <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">ملاحظات</label><textarea id="ord_notes" rows="3" placeholder="أي ملاحظات إضافية..." style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none;resize:vertical;line-height:1.7" style-focus="border-color:#4E5F80"></textarea></div>
+              <div style="display:flex;gap:12px;margin-top:4px">
+                <button type="submit" style="flex:1;padding:13px;background:linear-gradient(135deg,#4E5F80,#5A6F9E);color:#fff;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer">حفظ الطلب</button>
+                <button type="button" onclick="{{ closeOrderModal }}" style="padding:13px 24px;background:#F0F3F9;color:#536080;font-size:15px;font-weight:700;border:none;border-radius:12px;cursor:pointer">إلغاء</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ═══ ORDER STATUS MODAL ═══ -->
+      <sc-if value="{{ showOrderStatusModal }}" hint-placeholder-val="{{ false }}">
+        <div style="position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:rgba(10,34,24,0.55);backdrop-filter:blur(4px)" onclick="{{ closeOrderStatusModal }}">
+          <div style="background:#fff;border-radius:22px;padding:36px;width:380px;max-width:95vw;box-shadow:0 24px 64px rgba(0,0,0,0.18)" onclick="{{ stopPropagation }}">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+              <div><h2 style="font-size:17px;font-weight:900;color:#111C32">تعديل حالة الطلب</h2></div>
+              <button onclick="{{ closeOrderStatusModal }}" style="width:34px;height:34px;background:#F2F3F5;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6B7E9F" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            </div>
+            <form style="display:flex;flex-direction:column;gap:16px" onsubmit="{{ submitOrderStatus }}">
+              <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:8px">الحالة *</label><select id="ord_status_val" required style="width:100%;padding:12px 14px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:14px;color:#111C32;background:#F7F8FA;outline:none;cursor:pointer"><option value="">اختر الحالة</option><option>مكتمل</option><option>قيد المعالجة</option><option>معلق</option><option>ملغي</option></select></div>
+              <div style="display:flex;gap:10px;margin-top:4px">
+                <button type="submit" style="flex:1;padding:12px;background:linear-gradient(135deg,#4E5F80,#5A6F9E);color:#fff;font-size:14px;font-weight:800;border:none;border-radius:11px;cursor:pointer">حفظ الحالة</button>
+                <button type="button" onclick="{{ closeOrderStatusModal }}" style="padding:12px 20px;background:#F2F3F5;color:#6B7E9F;font-size:14px;font-weight:700;border:none;border-radius:11px;cursor:pointer">إلغاء</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ═══ ORDERS PAGE ═══ -->
+      <sc-if value="{{ isOrders }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#fff;border-radius:16px;padding:22px;box-shadow:0 2px 12px rgba(28,94,56,0.06);border:1px solid #D8DBE2">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+            <h3 style="font-size:15px;font-weight:800;color:#111C32">سجل الطلبات</h3>
+            <button onclick="{{ openOrderModal }}" style="display:flex;align-items:center;gap:7px;padding:9px 16px;background:linear-gradient(135deg,#4E5F80,#5A6F9E);color:#fff;font-size:13px;font-weight:700;border:none;border-radius:10px;cursor:pointer">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              طلب جديد
+            </button>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr style="border-bottom:2px solid #D8DBE2;background:#F5F6F8">
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">رقم الطلب</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">المتبرع</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">الباقة</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">المبلغ</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">الحالة</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">التاريخ</th>
+                <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">إجراء</th>
+              </tr></thead>
+              <tbody>
+                <sc-for list="{{ ordersData }}" as="o" hint-placeholder-count="3">
+                  <tr style="border-bottom:1px solid #EEEEF1" style-hover="background:#F5F6F8">
+                    <td style="padding:11px 12px;font-size:12px;font-weight:700;color:#4E5F80;direction:ltr;font-family:monospace">{{ o.ref }}</td>
+                    <td style="padding:11px 12px;font-size:13px;color:#111C32;font-weight:600">{{ o.donor }}</td>
+                    <td style="padding:11px 12px;font-size:12px;color:#6B7E9F">{{ o.pkg }}</td>
+                    <td style="padding:11px 12px;font-size:13px;font-weight:700;color:#111C32;direction:ltr">{{ o.amount }} ر.س</td>
+                    <td style="padding:11px 12px"><span style="{{ o.statusStyle }}">{{ o.statusLabel }}</span></td>
+                    <td style="padding:11px 12px;font-size:11px;color:#6B7E9F">{{ o.date }}</td>
+                    <td style="padding:11px 12px"><button onclick="{{ o.onEdit }}" style="width:30px;height:30px;background:#E8EBF5;color:#4E5F80;border:none;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center" style-hover="background:#4E5F80;color:#fff"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button></td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ═══ BENEF REQ STATUS MODAL ═══ -->
+      <sc-if value="{{ showBenefReqStatusModal }}" hint-placeholder-val="{{ false }}">
+        <div style="position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:rgba(10,34,24,0.55);backdrop-filter:blur(4px)" onclick="{{ closeBenefReqStatusModal }}">
+          <div style="background:#fff;border-radius:22px;padding:36px;width:380px;max-width:95vw;box-shadow:0 24px 64px rgba(0,0,0,0.18)" onclick="{{ stopPropagation }}">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+              <h2 style="font-size:17px;font-weight:900;color:#111C32">تعديل حالة الطلب</h2>
+              <button onclick="{{ closeBenefReqStatusModal }}" style="width:34px;height:34px;background:#F2F3F5;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6B7E9F" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            </div>
+            <form style="display:flex;flex-direction:column;gap:16px" onsubmit="{{ submitBenefReqStatus }}">
+              <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:8px">الحالة *</label><select id="br_status_val" required style="width:100%;padding:12px 14px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:14px;color:#111C32;background:#F7F8FA;outline:none;cursor:pointer"><option value="">اختر الحالة</option><option>مكتمل</option><option>قيد المراجعة</option><option>معلق</option><option>ملغي</option></select></div>
+              <div style="display:flex;gap:10px;margin-top:4px">
+                <button type="submit" style="flex:1;padding:12px;background:linear-gradient(135deg,#4E5F80,#5A6F9E);color:#fff;font-size:14px;font-weight:800;border:none;border-radius:11px;cursor:pointer">حفظ الحالة</button>
+                <button type="button" onclick="{{ closeBenefReqStatusModal }}" style="padding:12px 20px;background:#F2F3F5;color:#6B7E9F;font-size:14px;font-weight:700;border:none;border-radius:11px;cursor:pointer">إلغاء</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ═══ BENEF REQ MODAL ═══ -->
+      <sc-if value="{{ showBenefReqModal }}" hint-placeholder-val="{{ false }}">
+        <div style="position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:rgba(10,34,24,0.55);backdrop-filter:blur(4px)" onclick="{{ closeBenefReqModal }}">
+          <div style="background:#fff;border-radius:22px;padding:36px;width:520px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.18)" onclick="{{ stopPropagation }}">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:26px">
+              <div><h2 style="font-size:18px;font-weight:900;color:#111C32">طلب مستفيد جديد</h2><p style="font-size:12px;color:#6B7E9F;margin-top:3px">أدخل بيانات الجهة المستفيدة</p></div>
+              <button onclick="{{ closeBenefReqModal }}" style="width:36px;height:36px;background:#F2F3F5;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7E9F" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            </div>
+            <form style="display:flex;flex-direction:column;gap:18px" onsubmit="{{ submitBenefReq }}">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">اسم الجهة *</label><input type="text" id="br_name" placeholder="مسجد / مدرسة / جمعية..." required style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F7F8FA;outline:none" style-focus="border-color:#4E5F80"></div>
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">نوع الجهة *</label><select id="br_type" required style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F7F8FA;outline:none;cursor:pointer"><option value="">اختر النوع</option><option>مسجد</option><option>مؤسسة تعليمية</option><option>جمعية خيرية</option><option>مستشفى</option><option>سجن</option><option>فرد</option><option>أخرى</option></select></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">المدينة</label><input type="text" id="br_city" placeholder="الأحساء / الهفوف..." style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F7F8FA;outline:none" style-focus="border-color:#4E5F80"></div>
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">عدد المصاحف المطلوبة *</label><input type="number" id="br_count" min="1" placeholder="0" required style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:14px;font-weight:700;color:#4E5F80;background:#F7F8FA;outline:none;direction:ltr;text-align:center" style-focus="border-color:#4E5F80"></div>
+              </div>
+              <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">تاريخ الطلب *</label><input type="date" id="br_date" required style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F7F8FA;outline:none;direction:ltr" style-focus="border-color:#4E5F80"></div>
+              <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">ملاحظات</label><textarea id="br_notes" rows="3" placeholder="أي تفاصيل إضافية..." style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F7F8FA;outline:none;resize:vertical;line-height:1.7" style-focus="border-color:#4E5F80"></textarea></div>
+              <div style="display:flex;gap:12px;margin-top:4px">
+                <button type="submit" style="flex:1;padding:13px;background:linear-gradient(135deg,#4E5F80,#5A6F9E);color:#fff;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer">حفظ الطلب</button>
+                <button type="button" onclick="{{ closeBenefReqModal }}" style="padding:13px 24px;background:#F2F3F5;color:#6B7E9F;font-size:15px;font-weight:700;border:none;border-radius:12px;cursor:pointer">إلغاء</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ═══ BENEF REQUESTS PAGE ═══ -->
+      <sc-if value="{{ isBenefRequests }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:18px">
+          <button onclick="{{ openBenefReqModal }}" style="display:flex;align-items:center;gap:7px;padding:10px 20px;background:linear-gradient(135deg,#4E5F80,#5A6F9E);color:#fff;font-size:13px;font-weight:700;border:none;border-radius:10px;cursor:pointer">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            طلب جديد
+          </button>
+        </div>
+        <sc-if value="{{ hasBenefReqEntries }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff;border-radius:16px;padding:22px;box-shadow:0 2px 12px rgba(78,95,128,0.06);border:1px solid #D8DBE2">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+              <h3 style="font-size:15px;font-weight:800;color:#111C32">سجل طلبات المستفيدين</h3>
+              <span style="font-size:12px;font-weight:700;background:#E8EBF5;color:#4E5F80;padding:4px 13px;border-radius:100px">{{ benefReqCount }} طلب</span>
+            </div>
+            <div style="overflow-x:auto">
+              <table>
+                <thead><tr style="border-bottom:2px solid #D8DBE2;background:#F5F6F8">
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">اسم الجهة</th>
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">النوع</th>
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">المدينة</th>
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F;text-align:center">عدد المطلوب</th>
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">التاريخ</th>
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">الحالة</th>
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">إجراءات</th>
+                </tr></thead>
+                <tbody>
+                  <sc-for list="{{ benefReqEntries }}" as="br" hint-placeholder-count="2">
+                    <tr style="border-bottom:1px solid #EEEEF1" style-hover="background:#F5F6F8">
+                      <td style="padding:10px 12px;font-size:13px;font-weight:700;color:#111C32">{{ br.name }}</td>
+                      <td style="padding:10px 12px;font-size:12px;color:#6B7E9F">{{ br.type }}</td>
+                      <td style="padding:10px 12px;font-size:12px;color:#6B7E9F">{{ br.city }}</td>
+                      <td style="padding:10px 12px;font-size:14px;font-weight:800;color:#4E5F80;text-align:center">{{ br.count }}</td>
+                      <td style="padding:10px 12px;font-size:12px;color:#6B7E9F;white-space:nowrap">{{ br.date }}</td>
+                      <td style="padding:10px 12px"><span style="{{ br.statusStyle }}">{{ br.statusLabel }}</span></td>
+                      <td style="padding:10px 12px"><button onclick="{{ br.onEdit }}" style="width:30px;height:30px;background:#E8EBF5;color:#4E5F80;border:none;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center" style-hover="background:#4E5F80;color:#fff"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button></td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </sc-if>
+      </sc-if>
+
+      <!-- ═══ DIST MODAL ═══ -->
+      <sc-if value="{{ showDistModal }}" hint-placeholder-val="{{ false }}">
+        <div style="position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:rgba(10,34,24,0.55);backdrop-filter:blur(4px)" onclick="{{ closeDistModal }}">
+          <div style="background:#fff;border-radius:22px;padding:36px;width:620px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.18)" onclick="{{ stopPropagation }}">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:26px">
+              <div><h2 style="font-size:18px;font-weight:900;color:#111C32">تسجيل شحنة جديدة</h2><p style="font-size:12px;color:#6B7E9F;margin-top:3px">أدخل بيانات الشحنة والتسليم</p></div>
+              <button onclick="{{ closeDistModal }}" style="width:36px;height:36px;background:#F0F3F9;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7E9F" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            </div>
+            <form style="display:flex;flex-direction:column;gap:18px" onsubmit="{{ submitDist }}">
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">عدد المصاحف *</label><input type="number" id="dist_count" min="1" placeholder="0" required style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:14px;font-weight:700;color:#4E5F80;background:#F5F6F8;outline:none;direction:ltr;text-align:center" style-focus="border-color:#4E5F80"></div>
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">عدد الكراتين</label><input type="number" id="dist_boxes" min="0" placeholder="0" style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:14px;font-weight:700;color:#111C32;background:#F5F6F8;outline:none;direction:ltr;text-align:center" style-focus="border-color:#4E5F80"></div>
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">حجم المصحف</label><select id="dist_size" style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none;cursor:pointer"><option value="">اختر</option><option>كبير</option><option>وسط</option><option>صغير</option></select></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">الجهة المستفيدة *</label><input type="text" id="dist_beneficiary" placeholder="اسم الجهة" required style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none" style-focus="border-color:#4E5F80"></div>
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">العنوان</label><input type="text" id="dist_address" placeholder="المدينة / الحي / الشارع" style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none" style-focus="border-color:#4E5F80"></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">تاريخ التسليم *</label><input type="date" id="dist_date" required style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none;direction:ltr" style-focus="border-color:#4E5F80"></div>
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">اسم المستلم *</label><input type="text" id="dist_receiver" placeholder="اسم المستلم" required style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none" style-focus="border-color:#4E5F80"></div>
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">رقم الجوال</label><input type="tel" id="dist_phone" placeholder="+966 5X XXX XXXX" style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F5F6F8;outline:none;direction:ltr" style-focus="border-color:#4E5F80"></div>
+              </div>
+              <div style="display:flex;gap:12px;margin-top:4px">
+                <button type="submit" style="flex:1;padding:13px;background:linear-gradient(135deg,#4E5F80,#5A6F9E);color:#fff;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer">حفظ الشحنة</button>
+                <button type="button" onclick="{{ closeDistModal }}" style="padding:13px 24px;background:#F0F3F9;color:#536080;font-size:15px;font-weight:700;border:none;border-radius:12px;cursor:pointer">إلغاء</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ═══ DISTRIBUTION PAGE ═══ -->
+      <sc-if value="{{ isDistribution }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:18px">
+          <button onclick="{{ openDistModal }}" style="display:flex;align-items:center;gap:7px;padding:10px 20px;background:linear-gradient(135deg,#4E5F80,#5A6F9E);color:#fff;font-size:13px;font-weight:700;border:none;border-radius:10px;cursor:pointer">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            شحنة جديدة
+          </button>
+        </div>
+        <sc-if value="{{ hasDistEntries }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff;border-radius:16px;padding:22px;box-shadow:0 2px 12px rgba(28,94,56,0.06);border:1px solid #D8DBE2">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+              <h3 style="font-size:15px;font-weight:800;color:#111C32">سجل التوزيع</h3>
+              <span style="font-size:12px;font-weight:700;background:#E8E9EE;color:#4E5F80;padding:4px 13px;border-radius:100px">{{ distEntryCount }} شحنة</span>
+            </div>
+            <div style="overflow-x:auto">
+              <table style="min-width:800px">
+                <thead><tr style="border-bottom:2px solid #D8DBE2;background:#F5F6F8">
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F;text-align:center">عدد المصاحف</th>
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F;text-align:center">الكراتين</th>
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">الجهة / العنوان</th>
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">تاريخ التسليم</th>
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">المستلم</th>
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">الجوال</th>
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F;text-align:center">إجراءات</th>
+                </tr></thead>
+                <tbody>
+                  <sc-for list="{{ distEntries }}" as="d" hint-placeholder-count="2">
+                    <tr style="border-bottom:1px solid #EEEEF1" style-hover="background:#F5F6F8">
+                      <td style="padding:10px 12px;font-size:14px;font-weight:800;color:#4E5F80;text-align:center">{{ d.count }}</td>
+                      <td style="padding:10px 12px;font-size:13px;color:#111C32;text-align:center">{{ d.boxes }}</td>
+                      <td style="padding:10px 12px;font-size:13px;color:#111C32">{{ d.beneficiary }}<br><span style="font-size:11px;color:#6B7E9F">{{ d.address }}</span></td>
+                      <td style="padding:10px 12px;font-size:12px;color:#6B7E9F;white-space:nowrap">{{ d.date }}</td>
+                      <td style="padding:10px 12px;font-size:13px;color:#111C32">{{ d.receiver }}</td>
+                      <td style="padding:10px 12px;font-size:12px;color:#6B7E9F;direction:ltr">{{ d.phone }}</td>
+                      <td style="padding:10px 12px">
+                        <button onclick="{{ d.onEdit }}" style="width:30px;height:30px;background:#E8EBF5;color:#4E5F80;border:none;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center" style-hover="background:#4E5F80;color:#fff"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                        <button onclick="{{ d.onDelete }}" style="width:30px;height:30px;background:#FFE8E8;color:#C92929;border:none;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;margin-right:4px" style-hover="background:#C92929;color:#fff"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg></button>
+                      </td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </sc-if>
+      </sc-if>
+
+      <!-- ═══ MUSHAF MODAL ═══ -->
+      <sc-if value="{{ showMushhafModal }}" hint-placeholder-val="{{ false }}">
+        <div style="position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:rgba(10,34,24,0.55);backdrop-filter:blur(4px)" onclick="{{ closeMushhafModal }}">
+          <div style="background:#fff;border-radius:22px;padding:36px;width:500px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.18)" onclick="{{ stopPropagation }}">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:26px">
+              <div><h2 style="font-size:18px;font-weight:900;color:#111C32">إضافة مصحف جديد</h2><p style="font-size:12px;color:#6B7E9F;margin-top:3px">أدخل بيانات المصحف</p></div>
+              <button onclick="{{ closeMushhafModal }}" style="width:36px;height:36px;background:#F2F3F5;border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7E9F" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            </div>
+            <form style="display:flex;flex-direction:column;gap:18px" onsubmit="{{ submitMushhaf }}">
+              <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">اسم المصحف *</label><input type="text" id="msh_name" placeholder="مثال: مصحف حافظ بالرسم العثماني" required style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F7F8FA;outline:none" style-focus="border-color:#4E5F80"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">الحجم *</label><select id="msh_size" required style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F7F8FA;outline:none;cursor:pointer"><option value="">اختر الحجم</option><option>جوامعي (كبير)</option><option>عادي (وسط)</option><option>مجزأ</option><option>جيب (صغير)</option></select></div>
+                <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">النوع *</label><select id="msh_type" required style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F7F8FA;outline:none;cursor:pointer"><option value="">اختر النوع</option><option>مصحف حافظ</option><option>مصحف تجويد</option><option>مصحف كريم</option><option>مصحف عادي</option></select></div>
+              </div>
+              <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">السعر (ريال)</label><input type="number" id="msh_price" min="0" placeholder="0.00" style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:14px;font-weight:700;color:#4E5F80;background:#F7F8FA;outline:none;direction:ltr;text-align:center" style-focus="border-color:#4E5F80"></div>
+              <div><label style="display:block;font-size:12px;font-weight:700;color:#111C32;margin-bottom:7px">ملاحظات</label><textarea id="msh_notes" rows="3" placeholder="أي ملاحظات إضافية..." style="width:100%;padding:11px 13px;border:1.5px solid #D8DBE2;border-radius:11px;font-size:13px;color:#111C32;background:#F7F8FA;outline:none;resize:vertical;line-height:1.7" style-focus="border-color:#4E5F80"></textarea></div>
+              <div style="display:flex;gap:12px;margin-top:4px">
+                <button type="submit" style="flex:1;padding:13px;background:linear-gradient(135deg,#4E5F80,#5A6F9E);color:#fff;font-size:15px;font-weight:800;border:none;border-radius:12px;cursor:pointer">حفظ المصحف</button>
+                <button type="button" onclick="{{ closeMushhafModal }}" style="padding:13px 24px;background:#F2F3F5;color:#6B7E9F;font-size:15px;font-weight:700;border:none;border-radius:12px;cursor:pointer">إلغاء</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ═══ INVENTORY PAGE ═══ -->
+      <sc-if value="{{ isInventory }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+          <button onclick="{{ openMushhafModal }}" style="display:flex;align-items:center;gap:7px;padding:10px 18px;background:linear-gradient(135deg,#4E5F80,#5A6F9E);color:#fff;font-size:13px;font-weight:700;border:none;border-radius:10px;cursor:pointer">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            إضافة مصحف جديد
+          </button>
+        </div>
+        <sc-if value="{{ hasMushhafEntries }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#fff;border-radius:16px;padding:22px;box-shadow:0 2px 12px rgba(78,95,128,0.06);border:1px solid #D8DBE2">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+              <h3 style="font-size:15px;font-weight:800;color:#111C32">سجل المصاحف</h3>
+              <span style="font-size:12px;font-weight:700;background:#E8EBF5;color:#4E5F80;padding:4px 13px;border-radius:100px">{{ mushhafCount }} مصحف</span>
+            </div>
+            <div style="overflow-x:auto">
+              <table>
+                <thead><tr style="border-bottom:2px solid #D8DBE2;background:#F5F6F8">
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">رمز QR</th>
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">الاسم</th>
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F;text-align:center">الحجم</th>
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F;text-align:center">النوع</th>
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F;text-align:center">السعر</th>
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F">ملاحظات</th>
+                  <th style="padding:9px 12px;font-size:11px;font-weight:700;color:#6B7E9F;text-align:center">إجراءات</th>
+                </tr></thead>
+                <tbody>
+                  <sc-for list="{{ mushhafEntries }}" as="m" hint-placeholder-count="2">
+                    <tr style="border-bottom:1px solid #EEEEF1" style-hover="background:#F5F6F8">
+                      <td style="padding:10px 12px;font-size:11px;font-weight:700;color:#4E5F80;font-family:monospace;direction:ltr">{{ m.qr }}</td>
+                      <td style="padding:10px 12px;font-size:13px;font-weight:700;color:#111C32">{{ m.name }}</td>
+                      <td style="padding:10px 12px;font-size:12px;color:#6B7E9F;text-align:center">{{ m.size }}</td>
+                      <td style="padding:10px 12px;font-size:12px;color:#6B7E9F;text-align:center">{{ m.type }}</td>
+                      <td style="padding:10px 12px;font-size:13px;font-weight:700;color:#4E5F80;text-align:center;direction:ltr">{{ m.price }} ر.س</td>
+                      <td style="padding:10px 12px;font-size:12px;color:#6B7E9F">{{ m.notes }}</td>
+                      <td style="padding:10px 12px">
+                        <button onclick="{{ m.onEdit }}" style="width:30px;height:30px;background:#E8EBF5;color:#4E5F80;border:none;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center" style-hover="background:#4E5F80;color:#fff"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                        <button onclick="{{ m.onDelete }}" style="width:30px;height:30px;background:#FFE8E8;color:#C92929;border:none;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;margin-right:4px" style-hover="background:#C92929;color:#fff"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg></button>
+                      </td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </sc-if>
+      </sc-if>
+
+      <!-- ═══ DONORS PAGE ═══ -->
+      <sc-if value="{{ isDonors }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:14px;color:#6B7E9F">إجمالي المتبرعين: <strong style="color:#111C32">{{ donorCount }}</strong></div>
+            <button onclick="{{ openDonorModal }}" style="display:flex;align-items:center;gap:7px;padding:10px 18px;background:linear-gradient(135deg,#4E5F80,#5A6F9E);color:#fff;font-size:13px;font-weight:700;border:none;border-radius:10px;cursor:pointer">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              إضافة متبرع
+            </button>
+          </div>
+          <div style="background:#fff;border-radius:16px;border:1px solid #D8DBE2;overflow:hidden">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <thead><tr style="background:#F5F6F8">
+                <th style="padding:13px 16px;font-weight:700;color:#6B7E9F;border-bottom:2px solid #D8DBE2">#</th>
+                <th style="padding:13px 16px;font-weight:700;color:#6B7E9F;border-bottom:2px solid #D8DBE2">اسم المتبرع</th>
+                <th style="padding:13px 16px;font-weight:700;color:#6B7E9F;border-bottom:2px solid #D8DBE2">رقم الجوال</th>
+                <th style="padding:13px 16px;font-weight:700;color:#6B7E9F;border-bottom:2px solid #D8DBE2">البريد الإلكتروني</th>
+                <th style="padding:13px 16px;font-weight:700;color:#6B7E9F;border-bottom:2px solid #D8DBE2">مبلغ التبرع</th>
+                <th style="padding:13px 16px;font-weight:700;color:#6B7E9F;border-bottom:2px solid #D8DBE2">تاريخ التبرع</th>
+                <th style="padding:13px 16px;font-weight:700;color:#6B7E9F;border-bottom:2px solid #D8DBE2">الإجراءات</th>
+              </tr></thead>
+              <tbody>
+                <sc-for list="{{ donorItems }}" as="d" hint-placeholder-count="3">
+                  <tr style="border-bottom:1px solid #E8EBF2" style-hover="background:#F7F8FB">
+                    <td style="padding:12px 16px;color:#8A94A6">{{ d.idx }}</td>
+                    <td style="padding:12px 16px;font-weight:600;color:#111C32">{{ d.name }}</td>
+                    <td style="padding:12px 16px;color:#4E5F80;direction:ltr;text-align:right">{{ d.phone }}</td>
+                    <td style="padding:12px 16px;color:#6B7E9F;direction:ltr;text-align:right">{{ d.email }}</td>
+                    <td style="padding:12px 16px;font-weight:700;color:#C4A882">{{ d.amount }} ريال</td>
+                    <td style="padding:12px 16px;color:#6B7E9F">{{ d.date }}</td>
+                    <td style="padding:12px 16px">
+                      <div style="display:flex;gap:8px">
+                        <button onclick="{{ d.onEdit }}" style="width:30px;height:30px;background:#E8EBF5;color:#4E5F80;border:none;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center" style-hover="background:#4E5F80;color:#fff"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                        <button onclick="{{ d.onDelete }}" style="width:30px;height:30px;background:#FFE8E8;color:#C92929;border:none;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;margin-right:4px" style-hover="background:#C92929;color:#fff"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+                      </div>
+                    </td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ═══ DONOR MODAL ═══ -->
+      <sc-if value="{{ showDonorModal }}" hint-placeholder-val="{{ false }}">
+        <div style="position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:rgba(10,34,24,0.55);backdrop-filter:blur(4px)" onclick="{{ closeDonorModal }}">
+          <div style="background:#fff;border-radius:22px;padding:36px;width:520px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.18)" onclick="{{ stopPropagation }}">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px">
+              <h2 style="font-size:20px;font-weight:900;color:#111C32">{{ donorModalTitle }}</h2>
+              <button onclick="{{ closeDonorModal }}" style="background:#F0F2F7;border:none;border-radius:10px;width:36px;height:36px;cursor:pointer;font-size:18px;color:#6B7E9F">✕</button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div><label style="display:block;font-size:13px;font-weight:700;color:#111C32;margin-bottom:6px">اسم المتبرع *</label><input type="text" value="{{ donorForm.name }}" oninput="{{ onDonorName }}" placeholder="أدخل اسم المتبرع" style="width:100%;padding:11px 14px;border:1.5px solid #D8DBE2;border-radius:10px;font-size:14px;outline:none" style-focus="border-color:#4E5F80"></div>
+              <div><label style="display:block;font-size:13px;font-weight:700;color:#111C32;margin-bottom:6px">رقم الجوال</label><input type="tel" value="{{ donorForm.phone }}" oninput="{{ onDonorPhone }}" placeholder="+966 5XX XXX XXXX" style="width:100%;padding:11px 14px;border:1.5px solid #D8DBE2;border-radius:10px;font-size:14px;outline:none;direction:ltr" style-focus="border-color:#4E5F80"></div>
+              <div><label style="display:block;font-size:13px;font-weight:700;color:#111C32;margin-bottom:6px">البريد الإلكتروني</label><input type="email" value="{{ donorForm.email }}" oninput="{{ onDonorEmail }}" placeholder="email@example.com" style="width:100%;padding:11px 14px;border:1.5px solid #D8DBE2;border-radius:10px;font-size:14px;outline:none;direction:ltr" style-focus="border-color:#4E5F80"></div>
+              <div><label style="display:block;font-size:13px;font-weight:700;color:#111C32;margin-bottom:6px">مبلغ التبرع (ريال)</label><input type="number" value="{{ donorForm.amount }}" oninput="{{ onDonorAmount }}" placeholder="0" style="width:100%;padding:11px 14px;border:1.5px solid #D8DBE2;border-radius:10px;font-size:14px;outline:none;direction:ltr" style-focus="border-color:#4E5F80"></div>
+              <div><label style="display:block;font-size:13px;font-weight:700;color:#111C32;margin-bottom:6px">تاريخ التبرع</label><input type="date" value="{{ donorForm.date }}" oninput="{{ onDonorDate }}" style="width:100%;padding:11px 14px;border:1.5px solid #D8DBE2;border-radius:10px;font-size:14px;outline:none;direction:ltr" style-focus="border-color:#4E5F80"></div>
+              <button onclick="{{ saveDonor }}" style="padding:13px;background:#4E5F80;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px" style-hover="background:#3A4D6E">حفظ المتبرع</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ═══ BENEFICIARIES PAGE ═══ -->
+      <sc-if value="{{ isBeneficiaries }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:14px;color:#6B7E9F">إجمالي المستفيدين: <strong style="color:#111C32">{{ benefCount }}</strong></div>
+            <button onclick="{{ openBenefModal }}" style="display:flex;align-items:center;gap:7px;padding:10px 18px;background:linear-gradient(135deg,#4E5F80,#5A6F9E);color:#fff;font-size:13px;font-weight:700;border:none;border-radius:10px;cursor:pointer">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              إضافة مستفيد
+            </button>
+          </div>
+          <div style="background:#fff;border-radius:16px;border:1px solid #D8DBE2;overflow:hidden">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <thead><tr style="background:#F5F6F8">
+                <th style="padding:13px 16px;font-weight:700;color:#6B7E9F;border-bottom:2px solid #D8DBE2">#</th>
+                <th style="padding:13px 16px;font-weight:700;color:#6B7E9F;border-bottom:2px solid #D8DBE2">اسم الجهة / المستفيد</th>
+                <th style="padding:13px 16px;font-weight:700;color:#6B7E9F;border-bottom:2px solid #D8DBE2">النوع</th>
+                <th style="padding:13px 16px;font-weight:700;color:#6B7E9F;border-bottom:2px solid #D8DBE2">رقم التواصل</th>
+                <th style="padding:13px 16px;font-weight:700;color:#6B7E9F;border-bottom:2px solid #D8DBE2">المنطقة</th>
+                <th style="padding:13px 16px;font-weight:700;color:#6B7E9F;border-bottom:2px solid #D8DBE2">عدد المصاحف</th>
+                <th style="padding:13px 16px;font-weight:700;color:#6B7E9F;border-bottom:2px solid #D8DBE2">الإجراءات</th>
+              </tr></thead>
+              <tbody>
+                <sc-for list="{{ benefItems }}" as="b" hint-placeholder-count="3">
+                  <tr style="border-bottom:1px solid #E8EBF2" style-hover="background:#F7F8FB">
+                    <td style="padding:12px 16px;color:#8A94A6">{{ b.idx }}</td>
+                    <td style="padding:12px 16px;font-weight:600;color:#111C32">{{ b.name }}</td>
+                    <td style="padding:12px 16px"><span style="background:#E8E9EE;color:#4E5F80;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px">{{ b.type }}</span></td>
+                    <td style="padding:12px 16px;color:#4E5F80;direction:ltr;text-align:right">{{ b.phone }}</td>
+                    <td style="padding:12px 16px;color:#6B7E9F">{{ b.region }}</td>
+                    <td style="padding:12px 16px;font-weight:700;color:#2E7D4F;text-align:center">{{ b.count }}</td>
+                    <td style="padding:12px 16px">
+                      <div style="display:flex;gap:8px">
+                        <button onclick="{{ b.onEdit }}" style="width:30px;height:30px;background:#E8EBF5;color:#4E5F80;border:none;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center" style-hover="background:#4E5F80;color:#fff"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                        <button onclick="{{ b.onDelete }}" style="width:30px;height:30px;background:#FFE8E8;color:#C92929;border:none;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;margin-right:4px" style-hover="background:#C92929;color:#fff"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4h6v2"></path></svg></button>
+                      </div>
+                    </td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ═══ BENEF MODAL ═══ -->
+      <sc-if value="{{ showBenefModal }}" hint-placeholder-val="{{ false }}">
+        <div style="position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:rgba(10,34,24,0.55);backdrop-filter:blur(4px)" onclick="{{ closeBenefModal }}">
+          <div style="background:#fff;border-radius:22px;padding:36px;width:520px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.18)" onclick="{{ stopPropagation }}">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px">
+              <h2 style="font-size:20px;font-weight:900;color:#111C32">{{ benefModalTitle }}</h2>
+              <button onclick="{{ closeBenefModal }}" style="background:#F0F2F7;border:none;border-radius:10px;width:36px;height:36px;cursor:pointer;font-size:18px;color:#6B7E9F">✕</button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <div><label style="display:block;font-size:13px;font-weight:700;color:#111C32;margin-bottom:6px">اسم الجهة / المستفيد *</label><input type="text" value="{{ benefForm.name }}" oninput="{{ onBenefName }}" placeholder="اسم المسجد أو الجهة" style="width:100%;padding:11px 14px;border:1.5px solid #D8DBE2;border-radius:10px;font-size:14px;outline:none" style-focus="border-color:#4E5F80"></div>
+              <div><label style="display:block;font-size:13px;font-weight:700;color:#111C32;margin-bottom:6px">النوع</label><select value="{{ benefForm.type }}" onchange="{{ onBenefType }}" style="width:100%;padding:11px 14px;border:1.5px solid #D8DBE2;border-radius:10px;font-size:14px;outline:none;cursor:pointer" style-focus="border-color:#4E5F80"><option>مسجد</option><option>مدرسة</option><option>جمعية خيرية</option><option>فرد</option><option>جهة حكومية</option><option>أخرى</option></select></div>
+              <div><label style="display:block;font-size:13px;font-weight:700;color:#111C32;margin-bottom:6px">رقم التواصل</label><input type="tel" value="{{ benefForm.phone }}" oninput="{{ onBenefPhone }}" placeholder="+966 5XX XXX XXXX" style="width:100%;padding:11px 14px;border:1.5px solid #D8DBE2;border-radius:10px;font-size:14px;outline:none;direction:ltr" style-focus="border-color:#4E5F80"></div>
+              <div><label style="display:block;font-size:13px;font-weight:700;color:#111C32;margin-bottom:6px">المنطقة</label><input type="text" value="{{ benefForm.region }}" oninput="{{ onBenefRegion }}" placeholder="مثال: الأحساء، الدمام..." style="width:100%;padding:11px 14px;border:1.5px solid #D8DBE2;border-radius:10px;font-size:14px;outline:none" style-focus="border-color:#4E5F80"></div>
+              <div><label style="display:block;font-size:13px;font-weight:700;color:#111C32;margin-bottom:6px">عدد المصاحف المستلمة</label><input type="number" value="{{ benefForm.count }}" oninput="{{ onBenefCount }}" placeholder="0" style="width:100%;padding:11px 14px;border:1.5px solid #D8DBE2;border-radius:10px;font-size:14px;outline:none;direction:ltr" style-focus="border-color:#4E5F80"></div>
+              <button onclick="{{ saveBenef }}" style="padding:13px;background:#4E5F80;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px" style-hover="background:#3A4D6E">حفظ المستفيد</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ═══ STATS PAGE ═══ -->
+      <sc-if value="{{ isStats }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:24px">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+            <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:0 2px 12px rgba(78,95,128,0.07);border:1px solid #D8DBE2;text-align:center"><div style="font-size:40px;font-weight:900;color:#4E5F80;line-height:1">50,842</div><div style="font-size:14px;font-weight:700;color:#111C32;margin-top:8px">مصحف تم ترميمه</div><div style="font-size:12px;color:#8A94A6;margin-top:4px">إجمالي منذ التأسيس</div></div>
+            <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:0 2px 12px rgba(78,95,128,0.07);border:1px solid #D8DBE2;text-align:center"><div style="font-size:40px;font-weight:900;color:#C4A882;line-height:1">38,610</div><div style="font-size:14px;font-weight:700;color:#111C32;margin-top:8px">مصحف تم إرساله</div><div style="font-size:12px;color:#8A94A6;margin-top:4px">موزعة على الجهات المستفيدة</div></div>
+            <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:0 2px 12px rgba(78,95,128,0.07);border:1px solid #D8DBE2;text-align:center"><div style="font-size:40px;font-weight:900;color:#2E7D4F;line-height:1">260</div><div style="font-size:14px;font-weight:700;color:#111C32;margin-top:8px">جاهز للشحن</div><div style="font-size:12px;color:#8A94A6;margin-top:4px">في المستودع جاهزة للتوزيع</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:0 2px 12px rgba(78,95,128,0.07);border:1px solid #D8DBE2;text-align:center"><div style="font-size:40px;font-weight:900;color:#E07B3A;line-height:1">145</div><div style="font-size:14px;font-weight:700;color:#111C32;margin-top:8px">تحتاج إلى فرز</div><div style="font-size:12px;color:#8A94A6;margin-top:4px">مصاحف متبقية في انتظار التصنيف</div></div>
+            <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:0 2px 12px rgba(78,95,128,0.07);border:1px solid #D8DBE2;text-align:center"><div style="font-size:40px;font-weight:900;color:#4E5F80;line-height:1">12</div><div style="font-size:14px;font-weight:700;color:#111C32;margin-top:8px">دولة مستفيدة</div><div style="font-size:12px;color:#8A94A6;margin-top:4px">دول تم تصدير المصاحف إليها</div></div>
+          </div>
+          <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:0 2px 12px rgba(78,95,128,0.07);border:1px solid #D8DBE2">
+            <h3 style="font-size:16px;font-weight:800;color:#111C32;margin-bottom:20px">ملخص إحصائيات المصاحف</h3>
+            <div style="overflow-x:auto">
+              <table style="font-size:14px">
+                <thead><tr style="background:#F5F6F8">
+                  <th style="padding:12px 16px;font-weight:700;color:#4E5F80;border-bottom:2px solid #D8DBE2">البيان</th>
+                  <th style="padding:12px 16px;text-align:center;font-weight:700;color:#4E5F80;border-bottom:2px solid #D8DBE2">العدد</th>
+                  <th style="padding:12px 16px;text-align:center;font-weight:700;color:#4E5F80;border-bottom:2px solid #D8DBE2">النسبة</th>
+                  <th style="padding:12px 16px;text-align:center;font-weight:700;color:#4E5F80;border-bottom:2px solid #D8DBE2">الحالة</th>
+                </tr></thead>
+                <tbody>
+                  <tr style="border-bottom:1px solid #E8EBF2"><td style="padding:14px 16px;font-weight:600;color:#111C32">مصاحف تم ترميمها</td><td style="padding:14px 16px;text-align:center;font-weight:700;color:#4E5F80">50,842</td><td style="padding:14px 16px;text-align:center"><div style="display:flex;align-items:center;justify-content:center;gap:8px"><div style="flex:1;max-width:80px;height:6px;background:#E8EBF2;border-radius:3px"><div style="width:79%;height:100%;background:#4E5F80;border-radius:3px"></div></div><span style="font-size:12px;color:#8A94A6">79%</span></div></td><td style="padding:14px 16px;text-align:center"><span style="background:#E6F0EC;color:#2E7D4F;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px">مكتمل</span></td></tr>
+                  <tr style="border-bottom:1px solid #E8EBF2"><td style="padding:14px 16px;font-weight:600;color:#111C32">مصاحف تم إرسالها</td><td style="padding:14px 16px;text-align:center;font-weight:700;color:#C4A882">38,610</td><td style="padding:14px 16px;text-align:center"><div style="display:flex;align-items:center;justify-content:center;gap:8px"><div style="flex:1;max-width:80px;height:6px;background:#E8EBF2;border-radius:3px"><div style="width:63%;height:100%;background:#C4A882;border-radius:3px"></div></div><span style="font-size:12px;color:#8A94A6">63%</span></div></td><td style="padding:14px 16px;text-align:center"><span style="background:#E6F0EC;color:#2E7D4F;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px">مكتمل</span></td></tr>
+                  <tr style="border-bottom:1px solid #E8EBF2"><td style="padding:14px 16px;font-weight:600;color:#111C32">مصاحف جاهزة للشحن</td><td style="padding:14px 16px;text-align:center;font-weight:700;color:#2E7D4F">260</td><td style="padding:14px 16px;text-align:center"><div style="display:flex;align-items:center;justify-content:center;gap:8px"><div style="flex:1;max-width:80px;height:6px;background:#E8EBF2;border-radius:3px"><div style="width:17%;height:100%;background:#2E7D4F;border-radius:3px"></div></div><span style="font-size:12px;color:#8A94A6">17%</span></div></td><td style="padding:14px 16px;text-align:center"><span style="background:#E8F4ED;color:#2E7D4F;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px">جاهز</span></td></tr>
+                  <tr><td style="padding:14px 16px;font-weight:600;color:#111C32">مصاحف تحتاج فرز</td><td style="padding:14px 16px;text-align:center;font-weight:700;color:#E07B3A">145</td><td style="padding:14px 16px;text-align:center"><div style="display:flex;align-items:center;justify-content:center;gap:8px"><div style="flex:1;max-width:80px;height:6px;background:#E8EBF2;border-radius:3px"><div style="width:9%;height:100%;background:#E07B3A;border-radius:3px"></div></div><span style="font-size:12px;color:#8A94A6">9%</span></div></td><td style="padding:14px 16px;text-align:center"><span style="background:#FEF0E7;color:#E07B3A;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px">قيد المعالجة</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ═══ LIFECYCLE PAGE ═══ -->
+      <sc-if value="{{ isLifecycle }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid;grid-template-columns:240px 1fr;gap:20px">
+          <div style="background:#fff;border-radius:16px;padding:18px;box-shadow:0 2px 12px rgba(28,94,56,0.06);border:1px solid #D8DBE2">
+            <h3 style="font-size:14px;font-weight:800;color:#111C32;margin-bottom:14px">اختر مصحفاً</h3>
+            <sc-for list="{{ lcMushafs }}" as="m" hint-placeholder-count="3">
+              <div style="{{ m.cardStyle }}" onclick="{{ m.onClick }}">
+                <div style="font-size:11px;font-weight:700;color:#4E5F80;direction:ltr;font-family:monospace;margin-bottom:2px">{{ m.qr }}</div>
+                <div style="font-size:12px;color:#111C32;font-weight:600">{{ m.type }}</div>
+                <div style="font-size:11px;color:#6B7E9F;margin-top:2px">{{ m.stage }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="background:#fff;border-radius:16px;padding:24px;box-shadow:0 2px 12px rgba(28,94,56,0.06);border:1px solid #D8DBE2">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+              <h3 style="font-size:16px;font-weight:800;color:#111C32">دورة حياة المصحف</h3>
+              <span style="font-size:12px;font-weight:700;color:#4E5F80;background:#E8E9EE;padding:4px 12px;border-radius:100px;direction:ltr">{{ selectedQR }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column">
+              <sc-for list="{{ lcSteps }}" as="step" hint-placeholder-count="5">
+                <div style="display:flex;gap:16px">
+                  <div style="display:flex;flex-direction:column;align-items:center">
+                    <div style="{{ step.circleStyle }}"><span style="font-size:13px;font-weight:800;color:{{ step.circleTextColor }}">{{ step.circleText }}</span></div>
+                    <div style="{{ step.lineStyle }}"></div>
+                  </div>
+                  <div style="padding-bottom:26px;flex:1;min-width:0">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px">
+                      <span style="font-size:14px;font-weight:800;color:{{ step.titleColor }}">{{ step.title }}</span>
+                      <span style="{{ step.badgeStyle }}">{{ step.badge }}</span>
+                    </div>
+                    <p style="font-size:13px;color:#6B7E9F;line-height:1.7">{{ step.desc }}</p>
+                    <div style="font-size:11px;color:#9FAFC8;margin-top:4px">{{ step.date }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+    </main>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+
+class Component extends DCLogic {
+  PAGES = [
+    { id:'dashboard',     title:'لوحة التحكم',              sub:'نظرة عامة على العمليات' },
+    { id:'receive',       title:'استلام المصاحف',            sub:'تسجيل المصاحف الواردة' },
+    { id:'workshop',      title:'ورشة الترميم',              sub:'إدارة عمليات الترميم' },
+    { id:'orders',        title:'إدارة طلبات التبرع',        sub:'متابعة طلبات التبرع' },
+    { id:'benefrequests', title:'إدارة طلبات المستفيدين',    sub:'طلبات الجهات المستفيدة' },
+    { id:'distribution',  title:'التسليم والتوزيع',           sub:'الشحنات والجهات المستفيدة' },
+    { id:'inventory',     title:'إدارة المصاحف',             sub:'قاعدة بيانات المصاحف' },
+    { id:'donors',        title:'إدارة المتبرعين',            sub:'بيانات المتبرعين' },
+    { id:'beneficiaries', title:'إدارة المستفيدين',           sub:'المساجد والمؤسسات' },
+    { id:'stats',         title:'إحصائيات المصاحف',           sub:'نظرة شاملة على الحالة' },
+    { id:'lifecycle',     title:'دورة حياة المصحف',           sub:'المراحل من الاستلام حتى التوزيع' },
+  ];
+
+  NAV_ICONS = {
+    dashboard:     'M3 3h7v7H3zm11 0h7v7h-7zM3 14h7v7H3zm11 0h7v7h-7z',
+    receive:       'M8 17l4 4 4-4M12 12v9M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29',
+    workshop:      'M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z',
+    orders:        'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8',
+    benefrequests: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 22V12h6v10',
+    distribution:  'M1 3h15v13H1zM16 8h4l3 3v5h-7zM5.5 21a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM18.5 21a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
+    inventory:     'M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z',
+    donors:        'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+    beneficiaries: 'M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z',
+    stats:         'M18 20V10M12 20V4M6 20v-6',
+    lifecycle:     'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15',
+  };
+
+  state = {
+    page: 'dashboard', mobileSidebarOpen: false, selectedLCMushaf: 0,
+    showReceiveModal: false, editReceiveIdx: -1,
+    showAchievementModal: false, editAchievementIdx: -1,
+    showOrderModal: false,
+    showOrderStatusModal: false, orderStatusIdx: -1,
+    showBenefReqModal: false, editBenefReqIdx: -1,
+    showBenefReqStatusModal: false, benefReqStatusIdx: -1,
+    showDistModal: false, editDistIdx: -1,
+    showMushhafModal: false, editMushhafIdx: -1,
+    showDonorModal: false, editDonorIdx: -1, donorForm: { name:'', phone:'', email:'', amount:'', date:'' },
+    showBenefModal: false, editBenefIdx: -1, benefForm: { name:'', type:'مسجد', phone:'', region:'', count:'' },
+    receiveEntries: [], achievementEntries: [], orderEntries: [],
+    benefReqEntries: [], distEntries: [], mushhafEntries: [],
+    donorEntries: [], benefEntries: [], qrCounter: 1003,
+  };
+
+  _save(k, v) { try { localStorage.setItem('einaya2_'+k, JSON.stringify(v)); } catch(e){} }
+  _load(k, fb) { try { const v = localStorage.getItem('einaya2_'+k); return v ? JSON.parse(v) : fb; } catch(e){ return fb; } }
+
+  _samples = {
+    receive: [
+      { date:'2026-06-28', receiver:'أحمد الشمري', donor:'مسجد الرحمة', source:'مسجد', count:'30', size:'جوامعي (كبير)', type:'مصحف حافظ', notes:'' },
+      { date:'2026-06-25', receiver:'سارة المطيري', donor:'عبدالله القحطاني', source:'فرد متبرع', count:'15', size:'عادي (وسط)', type:'مصحف كامل', notes:'' },
+      { date:'2026-06-20', receiver:'أحمد الشمري', donor:'مدرسة النور', source:'مؤسسة تعليمية', count:'50', size:'جيب (صغير)', type:'مصحف تجويد', notes:'' },
+      { date:'2026-06-18', receiver:'فاطمة السعد', donor:'جمعية البر الأحسائية', source:'جهة خيرية', count:'120', size:'عادي (وسط)', type:'مصحف كريم', notes:'دفعة شهرية' },
+      { date:'2026-06-15', receiver:'محمد العنزي', donor:'مسجد الملك فهد', source:'مسجد', count:'80', size:'جوامعي (كبير)', type:'مصحف حافظ', notes:'' },
+      { date:'2026-06-12', receiver:'سارة المطيري', donor:'عمر الدوسري', source:'فرد متبرع', count:'25', size:'جيب (صغير)', type:'مصحف عادي', notes:'' },
+      { date:'2026-06-10', receiver:'أحمد الشمري', donor:'مدرسة الإيمان', source:'مؤسسة تعليمية', count:'60', size:'مجزأ', type:'مصحف مجزأ', notes:'للصفوف الدراسية' },
+      { date:'2026-06-08', receiver:'فاطمة السعد', donor:'خديجة المانع', source:'فرد متبرع', count:'10', size:'عادي (وسط)', type:'مصحف تجويد', notes:'' },
+      { date:'2026-06-05', receiver:'محمد العنزي', donor:'جمعية تحفيظ القرآن', source:'جهة خيرية', count:'200', size:'جوامعي (كبير)', type:'مصحف حافظ', notes:'تبرع سنوي' },
+      { date:'2026-06-01', receiver:'سارة المطيري', donor:'مسجد الرضوان', source:'مسجد', count:'45', size:'عادي (وسط)', type:'مصحف كامل', notes:'' },
+      { date:'2026-05-28', receiver:'أحمد الشمري', donor:'عبدالرحمن الحمدان', source:'فرد متبرع', count:'35', size:'جيب (صغير)', type:'مصحف عادي', notes:'' },
+      { date:'2026-05-20', receiver:'فاطمة السعد', donor:'مدرسة النجاح', source:'مؤسسة تعليمية', count:'75', size:'مجزأ', type:'مصحف مجزأ', notes:'' },
+    ],
+    achievements: [
+      { employee:'محمد العنزي', date:'2026-06-28', large:'12', medium:'8', partial:'5', jaib:'3' },
+      { employee:'فاطمة الحربي', date:'2026-06-27', large:'6', medium:'14', partial:'2', jaib:'7' },
+      { employee:'سعد القحطاني', date:'2026-06-26', large:'9', medium:'11', partial:'4', jaib:'6' },
+      { employee:'محمد العنزي', date:'2026-06-25', large:'15', medium:'10', partial:'3', jaib:'2' },
+      { employee:'فاطمة الحربي', date:'2026-06-24', large:'8', medium:'16', partial:'5', jaib:'4' },
+      { employee:'سعد القحطاني', date:'2026-06-23', large:'11', medium:'9', partial:'6', jaib:'5' },
+      { employee:'نورة السبيعي', date:'2026-06-22', large:'7', medium:'13', partial:'3', jaib:'8' },
+      { employee:'محمد العنزي', date:'2026-06-21', large:'14', medium:'7', partial:'4', jaib:'3' },
+      { employee:'فاطمة الحربي', date:'2026-06-20', large:'10', medium:'12', partial:'2', jaib:'6' },
+      { employee:'سعد القحطاني', date:'2026-06-19', large:'13', medium:'8', partial:'7', jaib:'4' },
+    ],
+    orders: [
+      { donor:'خالد السيف', phone:'+966501234567', pkg:'خيّر — 500 ر.س', amount:'500', payment:'مدى', date:'2026-06-29', notes:'', status:'مكتمل' },
+      { donor:'نورة العتيبي', phone:'+966512345678', pkg:'داعم — 200 ر.س', amount:'200', payment:'Apple Pay', date:'2026-06-27', notes:'', status:'قيد المعالجة' },
+      { donor:'عمر الغامدي', phone:'+966523456789', pkg:'راعي الخير — 1,000 ر.س', amount:'1000', payment:'تحويل بنكي', date:'2026-06-25', notes:'', status:'مكتمل' },
+      { donor:'منيرة الدوسري', phone:'+966534567890', pkg:'محسن — 50 ر.س', amount:'50', payment:'مدى', date:'2026-06-23', notes:'', status:'مكتمل' },
+      { donor:'فيصل المطيري', phone:'+966545678901', pkg:'داعم — 200 ر.س', amount:'200', payment:'نقداً', date:'2026-06-21', notes:'', status:'معلق' },
+      { donor:'هند الشمري', phone:'+966556789012', pkg:'خيّر — 500 ر.س', amount:'500', payment:'Apple Pay', date:'2026-06-19', notes:'', status:'مكتمل' },
+      { donor:'عبدالله العتيبي', phone:'+966567890123', pkg:'راعي الخير — 1,000 ر.س', amount:'1000', payment:'تحويل بنكي', date:'2026-06-17', notes:'تبرع شهري', status:'مكتمل' },
+      { donor:'سارة الحربي', phone:'+966578901234', pkg:'محسن — 50 ر.س', amount:'50', payment:'مدى', date:'2026-06-15', notes:'', status:'ملغي' },
+      { donor:'تركي القحطاني', phone:'+966589012345', pkg:'داعم — 200 ر.س', amount:'200', payment:'Apple Pay', date:'2026-06-13', notes:'', status:'قيد المعالجة' },
+      { donor:'ريم السبيعي', phone:'+966590123456', pkg:'خيّر — 500 ر.س', amount:'500', payment:'مدى', date:'2026-06-11', notes:'', status:'مكتمل' },
+      { donor:'بدر الزهراني', phone:'+966501234568', pkg:'راعي الخير — 1,000 ر.س', amount:'1000', payment:'تحويل بنكي', date:'2026-06-09', notes:'', status:'مكتمل' },
+    ],
+    benefreqs: [
+      { name:'مسجد الفرقان', type:'مسجد', city:'الهفوف', count:'50', date:'2026-06-28', status:'مقبول', notes:'' },
+      { name:'مدرسة الأمل', type:'مؤسسة تعليمية', city:'العيون', count:'100', date:'2026-06-26', status:'معلق', notes:'للفصل الدراسي القادم' },
+      { name:'جمعية تحفيظ القرآن الكريم', type:'جمعية خيرية', city:'الأحساء', count:'200', date:'2026-06-24', status:'مكتمل', notes:'' },
+      { name:'مسجد الملك فهد', type:'مسجد', city:'الهفوف', count:'80', date:'2026-06-22', status:'مكتمل', notes:'' },
+      { name:'مدرسة النور الابتدائية', type:'مؤسسة تعليمية', city:'المبرز', count:'60', date:'2026-06-20', status:'معلق', notes:'' },
+      { name:'مستشفى الملك فهد', type:'مستشفى', city:'الهفوف', count:'30', date:'2026-06-18', status:'مقبول', notes:'لغرف المرضى' },
+      { name:'مسجد الرحمة', type:'مسجد', city:'العيون', count:'40', date:'2026-06-16', status:'مكتمل', notes:'' },
+      { name:'مدرسة الإيمان المتوسطة', type:'مؤسسة تعليمية', city:'الأحساء', count:'75', date:'2026-06-14', status:'معلق', notes:'' },
+      { name:'دار رعاية المسنين', type:'أخرى', city:'الهفوف', count:'20', date:'2026-06-12', status:'مقبول', notes:'للمقيمين' },
+      { name:'جمعية البر الخيرية', type:'جمعية خيرية', city:'المبرز', count:'150', date:'2026-06-10', status:'مكتمل', notes:'' },
+      { name:'مسجد القبلتين', type:'مسجد', city:'الهفوف', count:'35', date:'2026-06-08', status:'مقبول', notes:'' },
+    ],
+    dist: [
+      { count:'30', boxes:'3', size:'كبير', beneficiary:'مسجد الرحمة', address:'الهفوف، حي الكوت', date:'2026-06-28', receiver:'أحمد علي', phone:'+96613001001' },
+      { count:'50', boxes:'5', size:'وسط', beneficiary:'مدرسة الأمل', address:'العيون', date:'2026-06-25', receiver:'سلمى محمد', phone:'+96613002002' },
+      { count:'200', boxes:'20', size:'كبير', beneficiary:'جمعية تحفيظ القرآن', address:'الأحساء، حي المبرز', date:'2026-06-22', receiver:'عبدالله الحمدان', phone:'+96613003003' },
+      { count:'80', boxes:'8', size:'وسط', beneficiary:'مسجد الملك فهد', address:'الهفوف، حي المركزي', date:'2026-06-19', receiver:'محمد السيف', phone:'+96613004004' },
+      { count:'60', boxes:'6', size:'صغير', beneficiary:'مدرسة النور', address:'المبرز، شارع الملك عبدالعزيز', date:'2026-06-16', receiver:'نورة العلي', phone:'+96613005005' },
+      { count:'30', boxes:'3', size:'وسط', beneficiary:'مستشفى الملك فهد', address:'الهفوف، حي العزيزية', date:'2026-06-13', receiver:'فاطمة الرشيد', phone:'+96613006006' },
+      { count:'40', boxes:'4', size:'كبير', beneficiary:'مسجد الرضوان', address:'العيون، حي النزهة', date:'2026-06-10', receiver:'خالد الدوسري', phone:'+96613007007' },
+      { count:'75', boxes:'8', size:'وسط', beneficiary:'مدرسة الإيمان', address:'الأحساء', date:'2026-06-07', receiver:'سارة القحطاني', phone:'+96613008008' },
+      { count:'20', boxes:'2', size:'صغير', beneficiary:'دار رعاية المسنين', address:'الهفوف', date:'2026-06-04', receiver:'أحمد المطيري', phone:'+96613009009' },
+      { count:'150', boxes:'15', size:'كبير', beneficiary:'جمعية البر الخيرية', address:'المبرز', date:'2026-06-01', receiver:'منيرة العنزي', phone:'+96613010010' },
+    ],
+    mushafs: [
+      { name:'مصحف المدينة', size:'جوامعي (كبير)', type:'مصحف حافظ', price:'45', notes:'', date:'2026-06-01', qr:'QR-1000' },
+      { name:'مصحف الحفظ', size:'عادي (وسط)', type:'مصحف تجويد', price:'25', notes:'', date:'2026-06-02', qr:'QR-1001' },
+      { name:'مصحف الجيب', size:'جيب (صغير)', type:'مصحف عادي', price:'15', notes:'', date:'2026-06-03', qr:'QR-1002' },
+      { name:'مصحف ورش', size:'جوامعي (كبير)', type:'مصحف ورش', price:'50', notes:'رواية ورش عن نافع', date:'2026-06-04', qr:'QR-1003' },
+      { name:'مصحف قالون', size:'عادي (وسط)', type:'مصحف قالون', price:'30', notes:'', date:'2026-06-05', qr:'QR-1004' },
+      { name:'مصحف كريم المقوى', size:'جوامعي (كبير)', type:'مصحف مقوى', price:'60', notes:'غلاف جلدي', date:'2026-06-06', qr:'QR-1005' },
+      { name:'مصحف الحرمين', size:'عادي (وسط)', type:'مصحف حافظ', price:'28', notes:'', date:'2026-06-07', qr:'QR-1006' },
+      { name:'مصحف مجزأ 30 جزء', size:'مجزأ', type:'مصحف مجزأ', price:'35', notes:'30 جزء منفصل', date:'2026-06-08', qr:'QR-1007' },
+      { name:'مصحف المدرسة', size:'جيب (صغير)', type:'مصحف عادي', price:'12', notes:'للطلاب', date:'2026-06-09', qr:'QR-1008' },
+      { name:'مصحف الرحمن', size:'جوامعي (كبير)', type:'مصحف تجويد', price:'55', notes:'بالتجويد الملون', date:'2026-06-10', qr:'QR-1009' },
+      { name:'مصحف السفر', size:'جيب (صغير)', type:'مصحف عادي', price:'18', notes:'خفيف الوزن', date:'2026-06-11', qr:'QR-1010' },
+    ],
+    donors: [
+      { name:'أحمد محمد الغامدي', phone:'+966501234567', email:'ahmed@email.com', amount:'500', date:'2026-06-20' },
+      { name:'فاطمة عبدالله العلي', phone:'+966512345678', email:'fatima@email.com', amount:'200', date:'2026-06-18' },
+      { name:'خالد سعد العتيبي', phone:'+966523456789', email:'khalid@email.com', amount:'1000', date:'2026-06-15' },
+      { name:'منيرة حمد الدوسري', phone:'+966534567890', email:'munira@email.com', amount:'150', date:'2026-06-12' },
+      { name:'فيصل عبدالرحمن المطيري', phone:'+966545678901', email:'faisal@email.com', amount:'750', date:'2026-06-10' },
+      { name:'هند ناصر الشمري', phone:'+966556789012', email:'hind@email.com', amount:'300', date:'2026-06-08' },
+      { name:'عبدالله علي القحطاني', phone:'+966567890123', email:'abd@email.com', amount:'2000', date:'2026-06-05' },
+      { name:'سارة محمد الحربي', phone:'+966578901234', email:'sara@email.com', amount:'100', date:'2026-06-03' },
+      { name:'تركي خالد الزهراني', phone:'+966589012345', email:'turki@email.com', amount:'500', date:'2026-05-30' },
+      { name:'ريم عمر السبيعي', phone:'+966590123456', email:'reem@email.com', amount:'250', date:'2026-05-28' },
+      { name:'بدر سعد الأحمدي', phone:'+966501234568', email:'badr@email.com', amount:'1500', date:'2026-05-25' },
+      { name:'نورة حسن العنزي', phone:'+966512345679', email:'noura@email.com', amount:'400', date:'2026-05-22' },
+    ],
+    benefs: [
+      { name:'مسجد الرحمة', type:'مسجد', phone:'+96613001001', region:'الهفوف', count:'30' },
+      { name:'مدرسة الأمل', type:'مدرسة', phone:'+96613002002', region:'العيون', count:'50' },
+      { name:'جمعية تحفيظ القرآن', type:'جمعية خيرية', phone:'+96613003003', region:'الأحساء', count:'100' },
+      { name:'مسجد الملك فهد', type:'مسجد', phone:'+96613004004', region:'الهفوف', count:'80' },
+      { name:'مدرسة النور الابتدائية', type:'مدرسة', phone:'+96613005005', region:'المبرز', count:'60' },
+      { name:'مستشفى الملك فهد', type:'مستشفى', phone:'+96613006006', region:'الهفوف', count:'30' },
+      { name:'مسجد الرضوان', type:'مسجد', phone:'+96613007007', region:'العيون', count:'40' },
+      { name:'مدرسة الإيمان المتوسطة', type:'مدرسة', phone:'+96613008008', region:'الأحساء', count:'75' },
+      { name:'دار رعاية المسنين', type:'أخرى', phone:'+96613009009', region:'الهفوف', count:'20' },
+      { name:'جمعية البر الخيرية', type:'جمعية خيرية', phone:'+96613010010', region:'المبرز', count:'150' },
+      { name:'مسجد القبلتين', type:'مسجد', phone:'+96613011011', region:'الهفوف', count:'35' },
+      { name:'مركز تحفيظ البنات', type:'مؤسسة تعليمية', phone:'+96613012012', region:'الأحساء', count:'45' },
+    ],
+  };
+
+  componentDidMount() {
+    this.setState({
+      receiveEntries:     this._load('receive',      this._samples.receive),
+      achievementEntries: this._load('achievements', this._samples.achievements),
+      orderEntries:       this._load('orders',       this._samples.orders),
+      benefReqEntries:    this._load('benefreqs',    this._samples.benefreqs),
+      distEntries:        this._load('dist',         this._samples.dist),
+      mushhafEntries:     this._load('mushafs',      this._samples.mushafs),
+      donorEntries:       this._load('donors',       this._samples.donors),
+      benefEntries:       this._load('benefs',       this._samples.benefs),
+      qrCounter:          this._load('qrCounter',    1003),
+    });
+  }
+
+  setPage = (id) => this.setState({ page: id, mobileSidebarOpen: false });
+  toggleSidebar = () => this.setState(s => ({ mobileSidebarOpen: !s.mobileSidebarOpen }));
+  closeSidebar = () => this.setState({ mobileSidebarOpen: false });
+  stopPropagation = (e) => e.stopPropagation();
+  _getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+
+  // RECEIVE
+  openReceiveModal  = () => this.setState({ showReceiveModal: true, editReceiveIdx: -1 });
+  closeReceiveModal = () => this.setState({ showReceiveModal: false });
+  submitReceive = (e) => {
+    e.preventDefault();
+    const entry = { date:this._getVal('rcv_date'), receiver:this._getVal('rcv_receiver'), donor:this._getVal('rcv_donor'), source:this._getVal('rcv_source'), count:this._getVal('rcv_count'), size:this._getVal('rcv_size'), type:this._getVal('rcv_type'), notes:this._getVal('rcv_notes') };
+    const s = this.state;
+    const arr = s.editReceiveIdx >= 0 ? s.receiveEntries.map((x,i)=>i===s.editReceiveIdx?entry:x) : [...s.receiveEntries, entry];
+    this._save('receive', arr);
+    this.setState({ receiveEntries: arr, showReceiveModal: false });
+  };
+  editReceive   = (i) => this.setState({ showReceiveModal: true, editReceiveIdx: i });
+  deleteReceive = (i) => { if(!confirm('حذف هذا السجل؟')) return; const arr=this.state.receiveEntries.filter((_,idx)=>idx!==i); this._save('receive',arr); this.setState({receiveEntries:arr}); };
+
+  // ACHIEVEMENT / WORKSHOP
+  openAchievementModal  = () => this.setState({ showAchievementModal: true, editAchievementIdx: -1 });
+  closeAchievementModal = () => this.setState({ showAchievementModal: false });
+  submitAchievement = (e) => {
+    e.preventDefault();
+    const entry = { employee:this._getVal('ach_employee'), date:this._getVal('ach_from'), large:this._getVal('ach_large')||'0', medium:this._getVal('ach_medium')||'0', partial:this._getVal('ach_partial')||'0', jaib:this._getVal('ach_jaib')||'0' };
+    const s = this.state;
+    const arr = s.editAchievementIdx >= 0 ? s.achievementEntries.map((x,i)=>i===s.editAchievementIdx?entry:x) : [...s.achievementEntries, entry];
+    this._save('achievements', arr);
+    this.setState({ achievementEntries: arr, showAchievementModal: false });
+  };
+  editAchievement   = (i) => this.setState({ showAchievementModal: true, editAchievementIdx: i });
+  deleteAchievement = (i) => { if(!confirm('حذف؟')) return; const arr=this.state.achievementEntries.filter((_,idx)=>idx!==i); this._save('achievements',arr); this.setState({achievementEntries:arr}); };
+
+  // ORDERS
+  openOrderModal  = () => this.setState({ showOrderModal: true });
+  closeOrderModal = () => this.setState({ showOrderModal: false });
+  submitOrder = (e) => {
+    e.preventDefault();
+    const entry = { donor:this._getVal('ord_donor'), phone:this._getVal('ord_phone'), pkg:this._getVal('ord_pkg'), amount:this._getVal('ord_amount'), payment:this._getVal('ord_payment'), date:this._getVal('ord_date'), notes:this._getVal('ord_notes'), status:'قيد المعالجة' };
+    const arr = [...this.state.orderEntries, entry];
+    this._save('orders', arr);
+    this.setState({ orderEntries: arr, showOrderModal: false });
+  };
+  openOrderStatusModal  = (i) => this.setState({ showOrderStatusModal: true, orderStatusIdx: i });
+  closeOrderStatusModal = () => this.setState({ showOrderStatusModal: false });
+  submitOrderStatus = (e) => {
+    e.preventDefault();
+    const status = this._getVal('ord_status_val');
+    const arr = this.state.orderEntries.map((x,i)=>i===this.state.orderStatusIdx?{...x,status}:x);
+    this._save('orders', arr);
+    this.setState({ orderEntries: arr, showOrderStatusModal: false });
+  };
+
+  // BENEF REQUESTS
+  openBenefReqModal  = () => this.setState({ showBenefReqModal: true, editBenefReqIdx: -1 });
+  closeBenefReqModal = () => this.setState({ showBenefReqModal: false });
+  submitBenefReq = (e) => {
+    e.preventDefault();
+    const entry = { name:this._getVal('br_name'), type:this._getVal('br_type'), city:this._getVal('br_city'), count:this._getVal('br_count'), date:this._getVal('br_date'), notes:this._getVal('br_notes'), status:'معلق' };
+    const s = this.state;
+    const arr = s.editBenefReqIdx >= 0 ? s.benefReqEntries.map((x,i)=>i===s.editBenefReqIdx?entry:x) : [...s.benefReqEntries, entry];
+    this._save('benefreqs', arr);
+    this.setState({ benefReqEntries: arr, showBenefReqModal: false });
+  };
+  editBenefReq = (i) => this.setState({ showBenefReqModal: true, editBenefReqIdx: i });
+  openBenefReqStatusModal  = (i) => this.setState({ showBenefReqStatusModal: true, benefReqStatusIdx: i });
+  closeBenefReqStatusModal = () => this.setState({ showBenefReqStatusModal: false });
+  submitBenefReqStatus = (e) => {
+    e.preventDefault();
+    const status = this._getVal('br_status_val');
+    const arr = this.state.benefReqEntries.map((x,i)=>i===this.state.benefReqStatusIdx?{...x,status}:x);
+    this._save('benefreqs', arr);
+    this.setState({ benefReqEntries: arr, showBenefReqStatusModal: false });
+  };
+
+  // DISTRIBUTION
+  openDistModal  = () => this.setState({ showDistModal: true, editDistIdx: -1 });
+  closeDistModal = () => this.setState({ showDistModal: false });
+  submitDist = (e) => {
+    e.preventDefault();
+    const entry = { count:this._getVal('dist_count'), boxes:this._getVal('dist_boxes'), size:this._getVal('dist_size'), beneficiary:this._getVal('dist_beneficiary'), address:this._getVal('dist_address'), date:this._getVal('dist_date'), receiver:this._getVal('dist_receiver'), phone:this._getVal('dist_phone') };
+    const s = this.state;
+    const arr = s.editDistIdx >= 0 ? s.distEntries.map((x,i)=>i===s.editDistIdx?entry:x) : [...s.distEntries, entry];
+    this._save('dist', arr);
+    this.setState({ distEntries: arr, showDistModal: false });
+  };
+  editDist   = (i) => this.setState({ showDistModal: true, editDistIdx: i });
+  deleteDist = (i) => { if(!confirm('حذف؟')) return; const arr=this.state.distEntries.filter((_,idx)=>idx!==i); this._save('dist',arr); this.setState({distEntries:arr}); };
+
+  // INVENTORY
+  openMushhafModal  = () => this.setState({ showMushhafModal: true, editMushhafIdx: -1 });
+  closeMushhafModal = () => this.setState({ showMushhafModal: false });
+  submitMushhaf = (e) => {
+    e.preventDefault();
+    const s = this.state;
+    const entry = { name:this._getVal('msh_name'), size:this._getVal('msh_size'), type:this._getVal('msh_type'), price:this._getVal('msh_price'), notes:this._getVal('msh_notes'), date:new Date().toISOString().slice(0,10), qr:'QR-'+s.qrCounter };
+    const arr = s.editMushhafIdx >= 0 ? s.mushhafEntries.map((x,i)=>i===s.editMushhafIdx?{...entry,qr:x.qr}:x) : [...s.mushhafEntries, entry];
+    const newQr = s.editMushhafIdx >= 0 ? s.qrCounter : s.qrCounter + 1;
+    this._save('mushafs', arr); this._save('qrCounter', newQr);
+    this.setState({ mushhafEntries: arr, showMushhafModal: false, qrCounter: newQr });
+  };
+  editMushhaf   = (i) => this.setState({ showMushhafModal: true, editMushhafIdx: i });
+  deleteMushhaf = (i) => { if(!confirm('حذف؟')) return; const arr=this.state.mushhafEntries.filter((_,idx)=>idx!==i); this._save('mushafs',arr); this.setState({mushhafEntries:arr}); };
+
+  // DONORS
+  openDonorModal  = () => this.setState({ showDonorModal:true, editDonorIdx:-1, donorForm:{name:'',phone:'',email:'',amount:'',date:''} });
+  closeDonorModal = () => this.setState({ showDonorModal: false });
+  onDonorName   = (e) => this.setState(s=>({donorForm:{...s.donorForm,name:e.target.value}}));
+  onDonorPhone  = (e) => this.setState(s=>({donorForm:{...s.donorForm,phone:e.target.value}}));
+  onDonorEmail  = (e) => this.setState(s=>({donorForm:{...s.donorForm,email:e.target.value}}));
+  onDonorAmount = (e) => this.setState(s=>({donorForm:{...s.donorForm,amount:e.target.value}}));
+  onDonorDate   = (e) => this.setState(s=>({donorForm:{...s.donorForm,date:e.target.value}}));
+  saveDonor = () => {
+    const {donorForm,donorEntries,editDonorIdx}=this.state;
+    if(!donorForm.name) return;
+    const arr=editDonorIdx>=0?donorEntries.map((x,i)=>i===editDonorIdx?{...donorForm}:x):[...donorEntries,{...donorForm}];
+    this._save('donors',arr); this.setState({donorEntries:arr,showDonorModal:false});
+  };
+  editDonor   = (i) => this.setState({showDonorModal:true,editDonorIdx:i,donorForm:{...this.state.donorEntries[i]}});
+  deleteDonor = (i) => { if(!confirm('حذف؟')) return; const arr=this.state.donorEntries.filter((_,idx)=>idx!==i); this._save('donors',arr); this.setState({donorEntries:arr}); };
+
+  // BENEFICIARIES
+  openBenefModal  = () => this.setState({showBenefModal:true,editBenefIdx:-1,benefForm:{name:'',type:'مسجد',phone:'',region:'',count:''}});
+  closeBenefModal = () => this.setState({ showBenefModal: false });
+  onBenefName   = (e) => this.setState(s=>({benefForm:{...s.benefForm,name:e.target.value}}));
+  onBenefType   = (e) => this.setState(s=>({benefForm:{...s.benefForm,type:e.target.value}}));
+  onBenefPhone  = (e) => this.setState(s=>({benefForm:{...s.benefForm,phone:e.target.value}}));
+  onBenefRegion = (e) => this.setState(s=>({benefForm:{...s.benefForm,region:e.target.value}}));
+  onBenefCount  = (e) => this.setState(s=>({benefForm:{...s.benefForm,count:e.target.value}}));
+  saveBenef = () => {
+    const {benefForm,benefEntries,editBenefIdx}=this.state;
+    if(!benefForm.name) return;
+    const arr=editBenefIdx>=0?benefEntries.map((x,i)=>i===editBenefIdx?{...benefForm}:x):[...benefEntries,{...benefForm}];
+    this._save('benefs',arr); this.setState({benefEntries:arr,showBenefModal:false});
+  };
+  editBenef   = (i) => this.setState({showBenefModal:true,editBenefIdx:i,benefForm:{...this.state.benefEntries[i]}});
+  deleteBenef = (i) => { if(!confirm('حذف؟')) return; const arr=this.state.benefEntries.filter((_,idx)=>idx!==i); this._save('benefs',arr); this.setState({benefEntries:arr}); };
+
+  // LIFECYCLE
+  selectLCMushaf = (i) => this.setState({ selectedLCMushaf: i });
+
+  // HELPERS
+  _statusStyle(status) {
+    if (status==='مكتمل') return 'background:#E0F2EA;color:#1A7A4A;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;white-space:nowrap';
+    if (status==='مقبول'||status==='قيد المعالجة') return 'background:#EBF0F8;color:#4E5F80;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;white-space:nowrap';
+    if (status==='ملغي'||status==='مرفوض') return 'background:#FEF0F0;color:#C0392B;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;white-space:nowrap';
+    return 'background:#FEF9E6;color:#A07A00;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;white-space:nowrap';
+  }
+  _sizeStyle(size) {
+    if (size==='جوامعي (كبير)'||size==='كبير') return 'background:#EBF0F8;color:#4E5F80;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px';
+    if (size==='عادي (وسط)'||size==='وسط') return 'background:#FEF6E6;color:#C4A882;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px';
+    if (size==='مجزأ') return 'background:#EEF0F5;color:#6B7E9F;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px';
+    return 'background:#F2ECFA;color:#7B3FA0;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px';
+  }
+
+  renderVals() {
+    const s = this.state;
+    const pg = this.PAGES.find(p=>p.id===s.page) || this.PAGES[0];
+
+    const activeStyle = 'width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border:none;cursor:pointer;border-radius:10px;margin-bottom:2px;color:#C4A882;background:rgba(196,168,130,0.12);font-family:Cairo,sans-serif;border-right:3px solid #C4A882;text-align:right';
+    const inactiveStyle = 'width:100%;display:flex;align-items:center;gap:10px;padding:10px 12px;border:none;cursor:pointer;border-radius:10px;margin-bottom:2px;color:rgba(255,255,255,0.85);background:transparent;font-family:Cairo,sans-serif;border-right:3px solid transparent;text-align:right';
+
+    const navItems = this.PAGES.map(p => ({
+      onClick: ()=>this.setPage(p.id),
+      navStyle: s.page===p.id ? activeStyle : inactiveStyle,
+      iconPath: this.NAV_ICONS[p.id]||'',
+      label: p.title,
+    }));
+
+    const kpis = [
+      { iconBg:'#E0F2EA', iconStroke:'#1A7A4A', iconPath:'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 22V12h6v10', change:'+45 هذا الأسبوع', changeStyle:'background:#E0F2EA;color:#1A7A4A;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px', value:'50,842', label:'إجمالي المصاحف المرممة' },
+      { iconBg:'#EBF0F8', iconStroke:'#4E5F80', iconPath:'M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z', change:'↓5% تحسن', changeStyle:'background:#FEF9E6;color:#A07A00;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px', value:'1,240', label:'مصحف قيد الترميم' },
+      { iconBg:'#FEF6E6', iconStroke:'#C4A882', iconPath:'M8 17l4 4 4-4M12 12v9M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29', change:'↑22% هذا الشهر', changeStyle:'background:#FEF6E6;color:#C4A882;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px', value:'38,610', label:'مصحف تم توزيعه' },
+      { iconBg:'#EBF0F8', iconStroke:'#4E5F80', iconPath:'M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z', change:'↑18% هذا الشهر', changeStyle:'background:#EBF0F8;color:#4E5F80;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px', value:'260', label:'جاهز للشحن' },
+    ];
+
+    const barData = [{month:'يناير',b:60,g:50},{month:'فبراير',b:70,g:55},{month:'مارس',b:45,g:40},{month:'أبريل',b:140,g:120},{month:'مايو',b:125,g:110},{month:'يونيو',b:115,g:100}];
+    const chartBars = barData.map((d,i)=>{
+      const bh=Math.round(d.b/160*120), gh=Math.round(d.g/160*120), baseX=50+i*55;
+      return {bx:baseX,by:160-bh,bh,gx:baseX+19,gy:160-gh,gh,lx:baseX+9,month:d.month};
+    });
+
+    const mushafsBreakdown = [
+      {color:'#C4A882',label:'عادي وسط',count:'24,610',sub:'مصحف مرمم',pct:'48'},
+      {color:'#1A6DBF',label:'مجزأ',count:'16,820',sub:'مصحف مرمم',pct:'33'},
+      {color:'#7B3FA0',label:'جيب صغير',count:'6,200',sub:'مصحف مرمم',pct:'12'},
+      {color:'#4E5F80',label:'جوامعي كبير',count:'3,212',sub:'مصحف مرمم',pct:'6'},
+      {color:'#2E7D4F',label:'أخرى',count:'0',sub:'مصحف مرمم',pct:'1'},
+    ];
+
+    const stColors = {'مكتمل':'#E0F2EA;color:#1A7A4A','قيد المعالجة':'#EBF0F8;color:#4E5F80','معلق':'#FEF9E6;color:#A07A00','ملغي':'#FEF0F0;color:#C0392B'};
+    const recentOrders = [...s.orderEntries].reverse().slice(0,5).map((o,i)=>({
+      ref:'ORD-'+String(s.orderEntries.length-i).padStart(4,'0'),
+      donor:o.donor, pkg:o.pkg||'-',
+      amount:o.amount?o.amount+' ريال':'-',
+      statusStyle:'background:'+(stColors[o.status]||'#FEF9E6;color:#A07A00')+';font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px',
+      statusLabel:o.status||'معلق', date:o.date||'-',
+    }));
+
+    const receiveItems = s.receiveEntries.map((r,i)=>({...r,sizeStyle:this._sizeStyle(r.size),onEdit:()=>this.editReceive(i),onDelete:()=>this.deleteReceive(i)}));
+    const achievementEntries = s.achievementEntries.map((a,i)=>{
+      const total=(+a.large||0)+(+a.medium||0)+(+a.partial||0)+(+a.jaib||0);
+      return {...a,dateLabel:a.date,total,totalStyle:'background:#E0F2EA;color:#1A7A4A;font-size:13px;font-weight:800;padding:3px 12px;border-radius:100px',onEdit:()=>this.editAchievement(i),onDelete:()=>this.deleteAchievement(i)};
+    });
+    const ordersData = s.orderEntries.map((o,i)=>({...o,ref:'ORD-'+String(i+1).padStart(4,'0'),statusStyle:this._statusStyle(o.status||'معلق'),statusLabel:o.status||'معلق',onEdit:()=>this.openOrderStatusModal(i)}));
+    const benefReqEntries = s.benefReqEntries.map((br,i)=>({...br,statusStyle:this._statusStyle(br.status),statusLabel:br.status,onEdit:()=>this.openBenefReqStatusModal(i)}));
+    const distEntries = s.distEntries.map((d,i)=>({...d,onEdit:()=>this.editDist(i),onDelete:()=>this.deleteDist(i)}));
+    const mushhafEntries = s.mushhafEntries.map((m,i)=>({...m,onEdit:()=>this.editMushhaf(i),onDelete:()=>this.deleteMushhaf(i)}));
+    const donorItems = s.donorEntries.map((d,i)=>({...d,idx:i+1,onEdit:()=>this.editDonor(i),onDelete:()=>this.deleteDonor(i)}));
+    const benefItems = s.benefEntries.map((b,i)=>({...b,idx:i+1,onEdit:()=>this.editBenef(i),onDelete:()=>this.deleteBenef(i)}));
+
+    const lcMushafs = s.mushhafEntries.slice(0,8).map((m,i)=>({
+      qr:m.qr, type:m.name||m.type, stage:'مرحلة الترميم',
+      cardStyle:i===s.selectedLCMushaf?'padding:10px 12px;border-radius:10px;border:2px solid #4E5F80;background:#EBF0F8;cursor:pointer;margin-bottom:6px':'padding:10px 12px;border-radius:10px;border:1px solid #D8DBE2;background:#fff;cursor:pointer;margin-bottom:6px',
+      onClick:()=>this.selectLCMushaf(i),
+    }));
+    const selectedMushaf = s.mushhafEntries[s.selectedLCMushaf]||{};
+    const selectedQR = selectedMushaf.qr||'QR----';
+    const lcColors = ['#4E5F80','#C4A882','#1A7A4A','#E07B3A','#7B3FA0'];
+    const lcStepDefs=[{title:'الاستلام',desc:'استلام المصحف من المتبرع وتسجيله في المنظومة الرقمية',done:true,date:'٢٠٢٦/٠٦/٠١'},{title:'الفرز والتقييم',desc:'تقييم حالة المصحف وتحديد أولوية الترميم',done:true,date:'٢٠٢٦/٠٦/٠٣'},{title:'الترميم والإصلاح',desc:'ترميم المصحف في الورشة المتخصصة وإعادته للحالة اللائقة',done:true,date:'٢٠٢٦/٠٦/١٠'},{title:'التجهيز للشحن',desc:'تجهيز المصحف المرمم وترتيبه في كرتون جاهز للتوزيع',done:false,date:''},{title:'التوزيع',desc:'توزيع المصحف على المساجد والمدارس والجهات المستفيدة',done:false,date:''}];
+    const lcSteps=lcStepDefs.map((step,i)=>({
+      title:step.title,desc:step.desc,date:step.date,
+      circleStyle:step.done?'width:38px;height:38px;background:'+lcColors[i]+';border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 10px '+lcColors[i]+'55':'width:38px;height:38px;background:#F0F2F7;border:2px dashed #C0C8D8;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0',
+      circleTextColor:step.done?'#fff':'#9FAFC8',circleText:String(i+1),
+      lineStyle:i<4?'width:2px;background:'+(step.done?'#4E5F80':'#E8EBF5')+';flex:1;min-height:28px;margin:4px 0':'width:2px;flex:1;min-height:0',
+      titleColor:step.done?'#111C32':'#9FAFC8',
+      badge:step.done?'مكتمل':'قيد الانتظار',
+      badgeStyle:step.done?'background:#E0F2EA;color:#1A7A4A;font-size:11px;font-weight:700;padding:2px 9px;border-radius:100px':'background:#F0F3F9;color:#9FAFC8;font-size:11px;font-weight:700;padding:2px 9px;border-radius:100px',
+    }));
+
+    return {
+      sidebarClass:'dash-sidebar'+(s.mobileSidebarOpen?' open':''),
+      navItems, activeTitle:pg.title, activeSub:pg.sub,
+      toggleSidebar:this.toggleSidebar, closeSidebar:this.closeSidebar, stopPropagation:this.stopPropagation,
+      isDashboard:s.page==='dashboard', isReceive:s.page==='receive', isWorkshop:s.page==='workshop',
+      isOrders:s.page==='orders', isBenefRequests:s.page==='benefrequests', isDistribution:s.page==='distribution',
+      isInventory:s.page==='inventory', isDonors:s.page==='donors', isBeneficiaries:s.page==='beneficiaries',
+      isStats:s.page==='stats', isLifecycle:s.page==='lifecycle',
+      kpis, chartBars, mushafsBreakdown, recentOrders,
+      receiveCount:s.receiveEntries.length, receiveItems,
+      showReceiveModal:s.showReceiveModal, openReceiveModal:this.openReceiveModal, closeReceiveModal:this.closeReceiveModal, submitReceive:this.submitReceive,
+      achievementCount:s.achievementEntries.length, achievementEntries,
+      showAchievementModal:s.showAchievementModal, openAchievementModal:this.openAchievementModal, closeAchievementModal:this.closeAchievementModal, submitAchievement:this.submitAchievement,
+      ordersData, showOrderModal:s.showOrderModal, openOrderModal:this.openOrderModal, closeOrderModal:this.closeOrderModal, submitOrder:this.submitOrder,
+      showOrderStatusModal:s.showOrderStatusModal, closeOrderStatusModal:this.closeOrderStatusModal, submitOrderStatus:this.submitOrderStatus,
+      hasBenefReqEntries:s.benefReqEntries.length>0, benefReqCount:s.benefReqEntries.length, benefReqEntries,
+      showBenefReqModal:s.showBenefReqModal, openBenefReqModal:this.openBenefReqModal, closeBenefReqModal:this.closeBenefReqModal, submitBenefReq:this.submitBenefReq,
+      showBenefReqStatusModal:s.showBenefReqStatusModal, closeBenefReqStatusModal:this.closeBenefReqStatusModal, submitBenefReqStatus:this.submitBenefReqStatus,
+      hasDistEntries:s.distEntries.length>0, distEntries, distEntryCount:s.distEntries.length,
+      showDistModal:s.showDistModal, openDistModal:this.openDistModal, closeDistModal:this.closeDistModal, submitDist:this.submitDist,
+      hasMushhafEntries:s.mushhafEntries.length>0, mushhafEntries, mushhafCount:s.mushhafEntries.length,
+      showMushhafModal:s.showMushhafModal, openMushhafModal:this.openMushhafModal, closeMushhafModal:this.closeMushhafModal, submitMushhaf:this.submitMushhaf,
+      donorCount:s.donorEntries.length, donorItems, showDonorModal:s.showDonorModal,
+      donorModalTitle:s.editDonorIdx>=0?'تعديل بيانات المتبرع':'إضافة متبرع جديد',
+      donorForm:s.donorForm, openDonorModal:this.openDonorModal, closeDonorModal:this.closeDonorModal, saveDonor:this.saveDonor,
+      onDonorName:this.onDonorName, onDonorPhone:this.onDonorPhone, onDonorEmail:this.onDonorEmail, onDonorAmount:this.onDonorAmount, onDonorDate:this.onDonorDate,
+      benefCount:s.benefEntries.length, benefItems, showBenefModal:s.showBenefModal,
+      benefModalTitle:s.editBenefIdx>=0?'تعديل بيانات المستفيد':'إضافة مستفيد جديد',
+      benefForm:s.benefForm, openBenefModal:this.openBenefModal, closeBenefModal:this.closeBenefModal, saveBenef:this.saveBenef,
+      onBenefName:this.onBenefName, onBenefType:this.onBenefType, onBenefPhone:this.onBenefPhone, onBenefRegion:this.onBenefRegion, onBenefCount:this.onBenefCount,
+      lcMushafs, lcSteps, selectedQR,
+    };
+  }
+}
+
+</script>
+</body>
+</html>
